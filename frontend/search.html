@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Search — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+</head>
+<body>
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<div style="background:#fff;border-bottom:1px solid var(--border);padding:0.75rem 0">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">Home</a><span>›</span><span>Advanced Search</span></div>
+  </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:4rem">
+  <h1 style="margin-bottom:1.75rem">🔎 Advanced Search</h1>
+
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:2rem;align-items:start">
+
+    <!-- Filters Sidebar -->
+    <div class="card" style="padding:1.5rem;position:sticky;top:80px">
+      <h3 style="margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">Filters</h3>
+
+      <div class="form-group" style="margin-bottom:1.25rem">
+        <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.5rem">Search</label>
+        <input type="text" id="f-search" class="form-control" placeholder="Product or business name…" oninput="doSearch()">
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.25rem">
+        <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.5rem">Category</label>
+        <select id="f-category" class="form-control" onchange="doSearch()">
+          <option value="">All Categories</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.25rem">
+        <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.5rem">City</label>
+        <select id="f-city" class="form-control" onchange="doSearch()">
+          <option value="">All Cities</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Bangalore">Bangalore</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.25rem">
+        <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.5rem">
+          Price Range: <span id="price-label">₹0 — ₹1000</span>
+        </label>
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem">
+          <input type="number" id="f-min-price" class="form-control" placeholder="Min ₹" min="0" oninput="updatePriceLabel();doSearch()">
+          <input type="number" id="f-max-price" class="form-control" placeholder="Max ₹" min="0" oninput="updatePriceLabel();doSearch()">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.25rem">
+        <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.5rem">Sort By</label>
+        <select id="f-sort" class="form-control" onchange="doSearch()">
+          <option value="">Default</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="name_asc">Name: A to Z</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.5rem">
+        <label style="display:flex;gap:0.5rem;align-items:center;cursor:pointer;font-size:0.88rem;font-weight:600">
+          <input type="checkbox" id="f-sale" onchange="doSearch()">
+          🏷 On Sale Only
+        </label>
+      </div>
+
+      <div class="form-group" style="margin-bottom:1.5rem">
+        <label style="display:flex;gap:0.5rem;align-items:center;cursor:pointer;font-size:0.88rem;font-weight:600">
+          <input type="checkbox" id="f-instock" onchange="doSearch()" checked>
+          ✅ In Stock Only
+        </label>
+      </div>
+
+      <button onclick="clearFilters()" class="btn btn-ghost btn-full">Clear All Filters</button>
+    </div>
+
+    <!-- Results -->
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <div id="result-count" style="color:var(--muted);font-size:0.9rem">Searching…</div>
+        <div id="active-filter-tags" style="display:flex;gap:0.5rem;flex-wrap:wrap"></div>
+      </div>
+
+      <!-- Products Results -->
+      <div id="search-type-tabs" style="display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.5rem">
+        <div class="tab active" onclick="switchSearchTab('products')" style="padding:0.6rem 1.25rem;font-weight:600;font-size:0.9rem;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px" id="stab-products">📦 Products</div>
+        <div class="tab"        onclick="switchSearchTab('businesses')" style="padding:0.6rem 1.25rem;font-weight:600;font-size:0.9rem;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px" id="stab-businesses">🏪 Businesses</div>
+      </div>
+
+      <div id="products-results" class="grid-3"></div>
+      <div id="businesses-results" class="grid-3" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<footer style="background:var(--dark);padding:2rem 0;text-align:center;color:#9CA3AF;font-size:0.88rem">
+  <div class="container">© 2024 LocalHub</div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+var allProducts   = [];
+var allBusinesses = [];
+var currentSearchTab = 'products';
+
+window.addEventListener('load', async function() {
+  // Load categories
+  try {
+    var cats = await apiCall('/businesses/categories');
+    var sel  = document.getElementById('f-category');
+    cats.forEach(function(c){ sel.innerHTML += '<option value="' + c + '">' + c + '</option>'; });
+  } catch(e) {}
+
+  // Read URL params
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('search'))   document.getElementById('f-search').value   = params.get('search');
+  if (params.get('category')) document.getElementById('f-category').value = params.get('category');
+  if (params.get('city'))     document.getElementById('f-city').value     = params.get('city');
+
+  await loadAll();
+  doSearch();
+});
+
+async function loadAll() {
+  try { allProducts   = await apiCall('/products?limit=200'); } catch(e) {}
+  try { allBusinesses = await apiCall('/businesses?limit=100'); } catch(e) {}
+}
+
+function updatePriceLabel() {
+  var min = document.getElementById('f-min-price').value || '0';
+  var max = document.getElementById('f-max-price').value || '∞';
+  document.getElementById('price-label').textContent = '₹' + min + ' — ₹' + max;
+}
+
+function doSearch() {
+  var query    = document.getElementById('f-search').value.toLowerCase().trim();
+  var category = document.getElementById('f-category').value;
+  var city     = document.getElementById('f-city').value;
+  var minPrice = parseFloat(document.getElementById('f-min-price').value) || 0;
+  var maxPrice = parseFloat(document.getElementById('f-max-price').value) || Infinity;
+  var saleOnly = document.getElementById('f-sale').checked;
+  var inStock  = document.getElementById('f-instock').checked;
+  var sort     = document.getElementById('f-sort').value;
+
+  // Filter products
+  var prods = allProducts.filter(function(p) {
+    var price = p.sale_price || p.price;
+    if (query    && !p.name.toLowerCase().includes(query) && !(p.description||'').toLowerCase().includes(query) && !(p.business_name||'').toLowerCase().includes(query)) return false;
+    if (category && p.category !== category) return false;
+    if (city     && p.city !== city) return false;
+    if (price < minPrice || price > maxPrice) return false;
+    if (saleOnly && !p.sale_price) return false;
+    if (inStock  && p.stock <= 0)  return false;
+    return true;
+  });
+
+  // Sort
+  if (sort === 'price_asc')  prods.sort(function(a,b){ return (a.sale_price||a.price) - (b.sale_price||b.price); });
+  if (sort === 'price_desc') prods.sort(function(a,b){ return (b.sale_price||b.price) - (a.sale_price||a.price); });
+  if (sort === 'name_asc')   prods.sort(function(a,b){ return a.name.localeCompare(b.name); });
+
+  // Filter businesses
+  var bizs = allBusinesses.filter(function(b) {
+    if (query    && !b.name.toLowerCase().includes(query) && !(b.description||'').toLowerCase().includes(query)) return false;
+    if (category && b.category !== category) return false;
+    if (city     && b.city !== city) return false;
+    return true;
+  });
+
+  document.getElementById('result-count').textContent = prods.length + ' products · ' + bizs.length + ' businesses found';
+
+  renderProductResults(prods);
+  renderBizResults(bizs);
+}
+
+function renderProductResults(prods) {
+  var grid = document.getElementById('products-results');
+  document.querySelector('#stab-products').textContent = '📦 Products (' + prods.length + ')';
+
+  if (!prods.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted)"><div style="font-size:3rem;margin-bottom:1rem">🔍</div><h3>No products found</h3><p>Try adjusting your filters</p></div>';
+    return;
+  }
+
+  grid.innerHTML = '';
+  prods.forEach(function(p) {
+    var price  = p.sale_price || p.price;
+    var card   = document.createElement('div');
+    card.className = 'card';
+    card.style.overflow = 'hidden';
+    card.innerHTML =
+      '<div style="position:relative;height:180px;overflow:hidden;background:var(--cream)">' +
+        '<img src="' + (p.image||'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80') + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover" onerror="this.src=\'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80\'">' +
+        (p.sale_price ? '<div style="position:absolute;top:0.5rem;left:0.5rem;background:var(--saffron);color:#fff;font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px">SALE</div>' : '') +
+      '</div>' +
+      '<div style="padding:1rem">' +
+        '<div style="font-weight:700;margin-bottom:0.2rem">' + p.name + '</div>' +
+        '<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.4rem">📍 ' + (p.business_name||'') + (p.city ? ' · ' + p.city : '') + '</div>' +
+        '<div style="display:flex;align-items:baseline;gap:0.4rem;margin-bottom:0.6rem">' +
+          '<span style="font-size:1.05rem;font-weight:700">₹' + parseFloat(price).toFixed(2) + '</span>' +
+          (p.sale_price ? '<span style="font-size:0.8rem;color:var(--muted);text-decoration:line-through">₹' + parseFloat(p.price).toFixed(2) + '</span>' : '') +
+          '<span style="font-size:0.75rem;color:var(--muted)">/' + (p.unit||'pc') + '</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:0.5rem">' +
+          '<a href="product.html?id=' + p.id + '" class="btn btn-ghost btn-sm" style="flex:1;text-align:center">View</a>' +
+          '<button class="btn btn-primary btn-sm add-btn" style="flex:1" ' + (p.stock<=0?'disabled':'') + '>🛒 Add</button>' +
+        '</div>' +
+      '</div>';
+
+    var btn = card.querySelector('.add-btn');
+    btn._product = { id:p.id, name:p.name, price:p.price, sale_price:p.sale_price||null, image:p.image||'', business_id:p.business_id, business_name:p.business_name||'', unit:p.unit||'pc' };
+    btn.addEventListener('click', function(){ addToCart(this._product); });
+    grid.appendChild(card);
+  });
+}
+
+function renderBizResults(bizs) {
+  var grid = document.getElementById('businesses-results');
+  document.querySelector('#stab-businesses').textContent = '🏪 Businesses (' + bizs.length + ')';
+
+  if (!bizs.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted)"><h3>No businesses found</h3></div>';
+    return;
+  }
+  grid.innerHTML = '';
+  bizs.forEach(function(b) {
+    var card = document.createElement('div');
+    card.className = 'card business-card';
+    card.style.cursor = 'pointer';
+    card.innerHTML =
+      '<div class="business-card-img"><img src="' + (b.banner||'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80') + '" alt="' + b.name + '" onerror="this.src=\'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80\'"></div>' +
+      '<div class="business-card-body">' +
+        '<div class="business-card-cat">' + (b.category||'Local Shop') + '</div>' +
+        '<div class="business-card-name">' + b.name + '</div>' +
+        '<div class="business-card-meta"><span>📍 ' + b.city + '</span><span>⭐ ' + (b.rating||4.5) + '</span></div>' +
+      '</div>';
+    card.addEventListener('click', function(){ window.location.href = 'product.html?business=' + b.id; });
+    grid.appendChild(card);
+  });
+}
+
+function switchSearchTab(tab) {
+  currentSearchTab = tab;
+  document.getElementById('products-results').style.display   = tab === 'products'   ? 'grid' : 'none';
+  document.getElementById('businesses-results').style.display = tab === 'businesses' ? 'grid' : 'none';
+  document.querySelectorAll('#search-type-tabs .tab').forEach(function(t, i) {
+    t.style.color            = (i===0&&tab==='products')||(i===1&&tab==='businesses') ? 'var(--saffron)' : 'var(--muted)';
+    t.style.borderBottomColor= (i===0&&tab==='products')||(i===1&&tab==='businesses') ? 'var(--saffron)' : 'transparent';
+  });
+}
+
+function clearFilters() {
+  document.getElementById('f-search').value   = '';
+  document.getElementById('f-category').value = '';
+  document.getElementById('f-city').value     = '';
+  document.getElementById('f-min-price').value = '';
+  document.getElementById('f-max-price').value = '';
+  document.getElementById('f-sort').value     = '';
+  document.getElementById('f-sale').checked   = false;
+  document.getElementById('f-instock').checked = true;
+  updatePriceLabel();
+  doSearch();
+}
+
+</script>
+</body>
+</html>

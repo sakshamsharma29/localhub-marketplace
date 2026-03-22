@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+  <style>
+    .chat-layout { display:grid; grid-template-columns:300px 1fr; height:calc(100vh - 130px); gap:0; border:1px solid var(--border); border-radius:16px; overflow:hidden; background:#fff; }
+    .chat-sidebar { border-right:1px solid var(--border); overflow-y:auto; }
+    .chat-sidebar-header { padding:1rem; border-bottom:1px solid var(--border); font-weight:700; background:var(--cream); }
+    .chat-contact { display:flex; align-items:center; gap:0.75rem; padding:0.85rem 1rem; cursor:pointer; transition:background 0.2s; border-bottom:1px solid var(--border); }
+    .chat-contact:hover, .chat-contact.active { background:var(--saffron-pale); }
+    .chat-contact-avatar { width:42px; height:42px; border-radius:50%; background:var(--saffron); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+    .chat-contact-name   { font-weight:600; font-size:0.9rem; }
+    .chat-contact-last   { font-size:0.78rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px; }
+    .chat-unread { background:var(--saffron); color:#fff; border-radius:50%; width:18px; height:18px; font-size:0.65rem; font-weight:700; display:flex; align-items:center; justify-content:center; margin-left:auto; flex-shrink:0; }
+    .chat-main   { display:flex; flex-direction:column; }
+    .chat-header { padding:1rem 1.25rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:1rem; background:var(--cream); }
+    .chat-messages { flex:1; overflow-y:auto; padding:1.25rem; display:flex; flex-direction:column; gap:0.85rem; }
+    .msg { max-width:70%; display:flex; flex-direction:column; gap:0.2rem; }
+    .msg.mine  { align-self:flex-end; align-items:flex-end; }
+    .msg.theirs{ align-self:flex-start; }
+    .msg-bubble { padding:0.65rem 1rem; border-radius:16px; font-size:0.9rem; line-height:1.5; word-break:break-word; }
+    .msg.mine   .msg-bubble { background:var(--saffron); color:#fff; border-bottom-right-radius:4px; }
+    .msg.theirs .msg-bubble { background:var(--cream); border-bottom-left-radius:4px; }
+    .msg-time { font-size:0.7rem; color:var(--muted); }
+    .chat-input-bar { padding:1rem; border-top:1px solid var(--border); display:flex; gap:0.75rem; }
+    .chat-input { flex:1; padding:0.7rem 1rem; border:1.5px solid var(--border); border-radius:50px; outline:none; font-family:inherit; font-size:0.9rem; transition:border-color 0.2s; }
+    .chat-input:focus { border-color:var(--saffron); }
+    .send-btn { width:42px; height:42px; border-radius:50%; background:var(--saffron); color:#fff; border:none; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .send-btn:hover { background:#e55c1e; }
+    .empty-chat { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; color:var(--muted); text-align:center; padding:2rem; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<div class="container" style="padding-top:1.5rem;padding-bottom:2rem">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+    <h1>💬 Messages</h1>
+    <a href="business-list.html" class="btn btn-ghost btn-sm">Browse Businesses</a>
+  </div>
+
+  <div id="auth-guard" style="display:none;text-align:center;padding:4rem">
+    <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
+    <h3>Please login to use chat</h3>
+    <a href="login.html?redirect=chat.html" class="btn btn-primary" style="margin-top:1rem">Login</a>
+  </div>
+
+  <div id="chat-wrap" style="display:none">
+    <div class="chat-layout">
+      <!-- Sidebar -->
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header">
+          💬 Conversations
+          <input type="text" id="contact-search" placeholder="Search…" style="display:block;width:100%;margin-top:0.5rem;padding:0.4rem 0.75rem;border:1.5px solid var(--border);border-radius:6px;font-size:0.82rem;outline:none;font-family:inherit" oninput="filterContacts()">
+        </div>
+        <div id="contacts-list"></div>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="chat-main" id="chat-main">
+        <div class="empty-chat">
+          <div style="font-size:4rem;margin-bottom:1rem">💬</div>
+          <h3 style="margin-bottom:0.5rem">Select a conversation</h3>
+          <p>Choose a business from the left to start chatting</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer style="background:var(--dark);padding:2rem 0;text-align:center;color:#9CA3AF;font-size:0.88rem">
+  <div class="container">© 2024 LocalHub</div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+var currentUser     = null;
+var currentContact  = null;
+var allContacts     = [];
+var allChats        = {};
+
+window.addEventListener('load', async function() {
+  var token = localStorage.getItem('token');
+  try { currentUser = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+
+  if (!token || !currentUser) { document.getElementById('auth-guard').style.display = 'block'; return; }
+  document.getElementById('chat-wrap').style.display = 'block';
+
+  // Load contacts from businesses
+  try {
+    var businesses = await apiCall('/businesses?limit=50');
+    allContacts = businesses.map(function(b) {
+      return { id: 'biz_' + b.id, name: b.name, subtitle: b.category + ' · ' + b.city, avatar: b.name.charAt(0), bizId: b.id };
+    });
+  } catch(e) {}
+
+  // Load chats from localStorage
+  try { allChats = JSON.parse(localStorage.getItem('chats_' + currentUser.id)) || {}; } catch(e) {}
+
+  // Check URL param for business
+  var params = new URLSearchParams(window.location.search);
+  var bizId  = params.get('business');
+  if (bizId) {
+    var contact = allContacts.find(function(c){ return c.bizId == bizId; });
+    if (contact) openChat(contact);
+  }
+
+  renderContacts();
+});
+
+function getChats(contactId) {
+  return allChats[contactId] || [];
+}
+
+function saveChats() {
+  localStorage.setItem('chats_' + currentUser.id, JSON.stringify(allChats));
+}
+
+function renderContacts() {
+  var query = (document.getElementById('contact-search').value || '').toLowerCase();
+  var list  = document.getElementById('contacts-list');
+  var contacts = allContacts.filter(function(c){ return !query || c.name.toLowerCase().includes(query); });
+
+  if (!contacts.length) {
+    list.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.88rem">No businesses found</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  contacts.forEach(function(c) {
+    var msgs    = getChats(c.id);
+    var lastMsg = msgs.length ? msgs[msgs.length - 1].text : 'Start a conversation';
+    var unread  = msgs.filter(function(m){ return !m.read && m.sender !== 'me'; }).length;
+
+    var div = document.createElement('div');
+    div.className = 'chat-contact' + (currentContact && currentContact.id === c.id ? ' active' : '');
+    div.innerHTML =
+      '<div class="chat-contact-avatar">' + c.avatar + '</div>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div class="chat-contact-name">' + c.name + '</div>' +
+        '<div class="chat-contact-last">' + lastMsg + '</div>' +
+      '</div>' +
+      (unread > 0 ? '<div class="chat-unread">' + unread + '</div>' : '');
+    div.addEventListener('click', function(){ openChat(c); });
+    list.appendChild(div);
+  });
+}
+
+function filterContacts() { renderContacts(); }
+
+function openChat(contact) {
+  currentContact = contact;
+  renderContacts();
+
+  // Mark all as read
+  var msgs = getChats(contact.id);
+  msgs.forEach(function(m){ m.read = true; });
+  saveChats();
+
+  var main = document.getElementById('chat-main');
+  main.innerHTML =
+    '<div class="chat-header">' +
+      '<div style="width:42px;height:42px;border-radius:50%;background:var(--saffron);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">' + contact.avatar + '</div>' +
+      '<div>' +
+        '<div style="font-weight:700">' + contact.name + '</div>' +
+        '<div style="font-size:0.78rem;color:var(--muted)">' + contact.subtitle + '</div>' +
+      '</div>' +
+      '<a href="product.html?business=' + contact.bizId + '" class="btn btn-ghost btn-sm" style="margin-left:auto">View Shop</a>' +
+    '</div>' +
+    '<div class="chat-messages" id="messages-area"></div>' +
+    '<div class="chat-input-bar">' +
+      '<input type="text" id="msg-input" class="chat-input" placeholder="Type a message…" onkeydown="if(event.key===\'Enter\') sendMessage()">' +
+      '<button class="send-btn" onclick="sendMessage()">➤</button>' +
+    '</div>';
+
+  renderMessages();
+
+  // Auto-reply if first message
+  if (!getChats(contact.id).length) {
+    setTimeout(function() {
+      addAutoReply(contact, 'Hello! 👋 Welcome to ' + contact.name + '. How can I help you today?');
+    }, 800);
+  }
+}
+
+function renderMessages() {
+  var area = document.getElementById('messages-area');
+  if (!area) return;
+  var msgs = getChats(currentContact.id);
+
+  if (!msgs.length) {
+    area.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:0.85rem;margin:auto">Say hello to ' + currentContact.name + '! 👋</div>';
+    return;
+  }
+
+  area.innerHTML = msgs.map(function(m) {
+    var isMine = m.sender === 'me';
+    return '<div class="msg ' + (isMine ? 'mine' : 'theirs') + '">' +
+      '<div class="msg-bubble">' + m.text + '</div>' +
+      '<div class="msg-time">' + new Date(m.time).toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) + '</div>' +
+    '</div>';
+  }).join('');
+
+  area.scrollTop = area.scrollHeight;
+}
+
+function sendMessage() {
+  var input = document.getElementById('msg-input');
+  var text  = input.value.trim();
+  if (!text || !currentContact) return;
+  input.value = '';
+
+  if (!allChats[currentContact.id]) allChats[currentContact.id] = [];
+  allChats[currentContact.id].push({ sender:'me', text:text, time: new Date().toISOString(), read:true });
+  saveChats();
+  renderMessages();
+  renderContacts();
+
+  // Auto reply
+  setTimeout(function() { autoReply(currentContact, text); }, 1200);
+}
+
+function addAutoReply(contact, text) {
+  if (!allChats[contact.id]) allChats[contact.id] = [];
+  allChats[contact.id].push({ sender:'them', text:text, time:new Date().toISOString(), read: currentContact && currentContact.id === contact.id });
+  saveChats();
+  if (currentContact && currentContact.id === contact.id) renderMessages();
+  renderContacts();
+}
+
+function autoReply(contact, userMsg) {
+  var replies = [
+    'Thanks for your message! We\'ll get back to you shortly. 😊',
+    'Hi there! Yes, we have that available. Would you like to place an order?',
+    'Great question! Our products are fresh daily. 🌱',
+    'Thank you for your interest! You can place an order directly from our shop.',
+    'We deliver within 2-3 hours in the local area. 🚴',
+    'Yes, we accept Cash on Delivery and UPI payments.',
+    'Our shop is open from 7 AM to 9 PM daily.',
+    'Feel free to browse our products and add them to your cart! 🛒'
+  ];
+
+  var lower = userMsg.toLowerCase();
+  var reply = '';
+  if (lower.includes('price') || lower.includes('cost') || lower.includes('rate'))
+    reply = 'You can see all our prices on the shop page. We have very competitive rates! 💰';
+  else if (lower.includes('deliver') || lower.includes('shipping'))
+    reply = 'We deliver within 2-3 hours locally. Free delivery on orders above ₹300! 🚴';
+  else if (lower.includes('open') || lower.includes('time') || lower.includes('hour'))
+    reply = 'We are open from 7 AM to 9 PM, 7 days a week. 🕐';
+  else if (lower.includes('payment') || lower.includes('pay') || lower.includes('upi'))
+    reply = 'We accept Cash on Delivery, UPI (GPay, PhonePe), and card payments. 💳';
+  else if (lower.includes('fresh') || lower.includes('quality'))
+    reply = 'All our products are fresh and sourced directly from local farms! 🌱';
+  else if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey'))
+    reply = 'Hello! 👋 How can I help you today?';
+  else
+    reply = replies[Math.floor(Math.random() * replies.length)];
+
+  addAutoReply(contact, reply);
+}
+
+</script>
+</body>
+</html>

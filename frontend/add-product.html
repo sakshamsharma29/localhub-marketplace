@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Product — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<div style="background:#fff;border-bottom:1px solid var(--border);padding:0.75rem 0">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a><span>›</span>
+      <a href="dashboard.html">Dashboard</a><span>›</span>
+      <span>Add Product</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;max-width:720px">
+
+  <div style="text-align:center;margin-bottom:2.5rem">
+    <h1 style="margin-bottom:0.5rem">Add New Product 📦</h1>
+    <p style="color:var(--muted);font-size:1.05rem">Add products to your business so customers can discover and order them.</p>
+  </div>
+
+  <!-- Auth guard -->
+  <div id="auth-guard" style="display:none;text-align:center;padding:3rem;background:#fff;border-radius:16px;border:1px solid var(--border)">
+    <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
+    <h3>Please login first</h3>
+    <a href="login.html?redirect=add-product.html" class="btn btn-primary" style="margin-top:1rem">Login</a>
+  </div>
+
+  <!-- No business guard -->
+  <div id="no-biz-guard" style="display:none;text-align:center;padding:3rem;background:#fff;border-radius:16px;border:1px solid var(--border)">
+    <div style="font-size:3rem;margin-bottom:1rem">🏪</div>
+    <h3>No Business Found</h3>
+    <p style="color:var(--muted);margin-bottom:1.5rem">You need to list your business first before adding products.</p>
+    <a href="add-business.html" class="btn btn-primary">List Your Business</a>
+  </div>
+
+  <!-- Product Form -->
+  <div id="product-form-wrap" style="display:none">
+
+    <!-- Business selector (if owner has multiple businesses) -->
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem">
+      <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Adding product to:</label>
+      <select id="business-select" class="form-control" onchange="onBusinessChange()">
+        <option value="">Select your business</option>
+      </select>
+    </div>
+
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:2rem">
+      <form id="product-form">
+
+        <!-- Basic Info -->
+        <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+          <h3 style="margin-bottom:1.25rem;color:var(--saffron)">📋 Product Details</h3>
+
+          <div class="form-group" style="margin-bottom:1rem">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Product Name *</label>
+            <input type="text" id="prod-name" class="form-control" placeholder="e.g. Fresh Tomatoes, Whole Wheat Bread" required>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Category *</label>
+              <select id="prod-category" class="form-control" required>
+                <option value="">Select category</option>
+                <option value="Vegetables">🥦 Vegetables</option>
+                <option value="Fruits">🍎 Fruits</option>
+                <option value="Dairy">🥛 Dairy</option>
+                <option value="Bread">🍞 Bread</option>
+                <option value="Sweets">🍬 Sweets</option>
+                <option value="Snacks">🍿 Snacks</option>
+                <option value="Cakes">🎂 Cakes</option>
+                <option value="Chicken">🍗 Chicken</option>
+                <option value="Mutton">🥩 Mutton</option>
+                <option value="Eggs">🥚 Eggs</option>
+                <option value="Pulses">🫘 Pulses</option>
+                <option value="Grains">🌾 Grains</option>
+                <option value="Spices">🌶 Spices</option>
+                <option value="Medicines">💊 Medicines</option>
+                <option value="Vitamins">💉 Vitamins</option>
+                <option value="Hygiene">🧴 Hygiene</option>
+                <option value="Other">📦 Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Unit *</label>
+              <select id="prod-unit" class="form-control" required>
+                <option value="kg">kg</option>
+                <option value="g">gram (g)</option>
+                <option value="litre">litre</option>
+                <option value="ml">ml</option>
+                <option value="piece">piece</option>
+                <option value="dozen">dozen</option>
+                <option value="bunch">bunch</option>
+                <option value="pack">pack</option>
+                <option value="box">box</option>
+                <option value="bottle">bottle</option>
+                <option value="loaf">loaf</option>
+                <option value="plate">plate</option>
+                <option value="strip">strip</option>
+                <option value="roll">roll</option>
+                <option value="250g">250g</option>
+                <option value="500g">500g</option>
+                <option value="500ml">500ml</option>
+                <option value="200g">200g</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Description</label>
+            <textarea id="prod-desc" class="form-control" rows="3" placeholder="Describe your product — freshness, origin, quality, how it's made…"></textarea>
+          </div>
+        </div>
+
+        <!-- Pricing -->
+        <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+          <h3 style="margin-bottom:1.25rem;color:var(--saffron)">💰 Pricing & Stock</h3>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Price (₹) *</label>
+              <input type="number" id="prod-price" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+            </div>
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Sale Price (₹)</label>
+              <input type="number" id="prod-sale-price" class="form-control" placeholder="Optional" min="0" step="0.01">
+              <div style="font-size:0.72rem;color:var(--muted);margin-top:0.25rem">Leave blank if no discount</div>
+            </div>
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Stock Quantity *</label>
+              <input type="number" id="prod-stock" class="form-control" placeholder="e.g. 100" min="0" required>
+            </div>
+          </div>
+
+          <!-- Price preview -->
+          <div id="price-preview" style="display:none;padding:0.75rem 1rem;background:var(--saffron-pale);border-radius:8px;font-size:0.88rem">
+            <span id="price-preview-text"></span>
+          </div>
+        </div>
+
+        <!-- Image URL -->
+        <div style="margin-bottom:2rem">
+          <h3 style="margin-bottom:1.25rem;color:var(--saffron)">🖼 Product Image</h3>
+          <div class="form-group" style="margin-bottom:1rem">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Image URL</label>
+            <input type="url" id="prod-image" class="form-control" placeholder="https://images.unsplash.com/…" oninput="previewImage()">
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem">Paste an image URL from Unsplash, Google Images, or your own website</div>
+          </div>
+          <div id="img-preview" style="display:none;margin-top:0.75rem">
+            <img id="img-preview-el" src="" alt="Preview" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;border:1px solid var(--border)">
+          </div>
+        </div>
+
+        <!-- Featured toggle -->
+        <div style="margin-bottom:1.5rem;padding:1rem;background:var(--cream);border-radius:8px">
+          <label style="display:flex;gap:0.75rem;align-items:center;cursor:pointer">
+            <input type="checkbox" id="prod-featured">
+            <div>
+              <div style="font-weight:600;font-size:0.9rem">Mark as Featured Product</div>
+              <div style="font-size:0.78rem;color:var(--muted)">Featured products appear on the homepage</div>
+            </div>
+          </label>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-full" style="font-size:1rem;padding:0.9rem">
+          📦 Add Product
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Added products list -->
+    <div id="added-products" style="margin-top:2rem;display:none">
+      <h3 style="margin-bottom:1rem">✅ Products Added This Session</h3>
+      <div id="added-list" style="display:flex;flex-direction:column;gap:0.75rem"></div>
+      <div style="display:flex;gap:0.75rem;margin-top:1.25rem">
+        <button onclick="addAnother()" class="btn btn-outline" style="flex:1">+ Add Another Product</button>
+        <a id="view-shop-btn" href="business-list.html" class="btn btn-primary" style="flex:1;text-align:center">View My Shop →</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer style="background:var(--dark);padding:2rem 0;text-align:center;color:#9CA3AF;font-size:0.88rem">
+  <div class="container">© 2024 LocalHub</div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+var myBusinesses  = [];
+var addedProducts = [];
+
+window.addEventListener('load', async function() {
+  var token = localStorage.getItem('token');
+  if (!token) {
+    document.getElementById('auth-guard').style.display = 'block';
+    return;
+  }
+
+  // Load my businesses
+  try {
+    var businesses = await apiCall('/businesses/my');
+    myBusinesses = businesses;
+
+    if (!businesses.length) {
+      document.getElementById('no-biz-guard').style.display = 'block';
+      return;
+    }
+
+    // Populate business selector
+    var sel = document.getElementById('business-select');
+    businesses.forEach(function(b) {
+      sel.innerHTML += '<option value="' + b.id + '">' + b.name + ' (' + b.city + ')</option>';
+    });
+
+    // Auto-select if only one business
+    if (businesses.length === 1) {
+      sel.value = businesses[0].id;
+    }
+
+    // Check URL for business ID
+    var urlBizId = new URLSearchParams(window.location.search).get('business');
+    if (urlBizId) sel.value = urlBizId;
+
+    document.getElementById('product-form-wrap').style.display = 'block';
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('no-biz-guard').style.display = 'block';
+  }
+});
+
+// Price preview
+document.getElementById('prod-price').addEventListener('input', updatePricePreview);
+document.getElementById('prod-sale-price').addEventListener('input', updatePricePreview);
+
+function updatePricePreview() {
+  var price     = parseFloat(document.getElementById('prod-price').value);
+  var salePrice = parseFloat(document.getElementById('prod-sale-price').value);
+  var preview   = document.getElementById('price-preview');
+  var text      = document.getElementById('price-preview-text');
+
+  if (!price) { preview.style.display = 'none'; return; }
+
+  preview.style.display = 'block';
+  if (salePrice && salePrice < price) {
+    var discount = Math.round(((price - salePrice) / price) * 100);
+    text.innerHTML = '💰 Customer pays <strong>₹' + salePrice.toFixed(2) + '</strong> <span style="text-decoration:line-through;color:var(--muted)">₹' + price.toFixed(2) + '</span> — <span style="color:var(--emerald);font-weight:700">' + discount + '% OFF</span>';
+  } else {
+    text.innerHTML = '💰 Customer pays <strong>₹' + price.toFixed(2) + '</strong>';
+  }
+}
+
+function previewImage() {
+  var url     = document.getElementById('prod-image').value.trim();
+  var preview = document.getElementById('img-preview');
+  var img     = document.getElementById('img-preview-el');
+  if (url) {
+    img.src = url;
+    img.onerror = function(){ preview.style.display = 'none'; };
+    img.onload  = function(){ preview.style.display = 'block'; };
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
+function onBusinessChange() {
+  var bizId = document.getElementById('business-select').value;
+  var viewBtn = document.getElementById('view-shop-btn');
+  if (viewBtn && bizId) viewBtn.href = 'product.html?business=' + bizId;
+}
+
+document.getElementById('product-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  var bizId     = document.getElementById('business-select').value;
+  var name      = document.getElementById('prod-name').value.trim();
+  var category  = document.getElementById('prod-category').value;
+  var unit      = document.getElementById('prod-unit').value;
+  var desc      = document.getElementById('prod-desc').value.trim();
+  var price     = parseFloat(document.getElementById('prod-price').value);
+  var salePrice = parseFloat(document.getElementById('prod-sale-price').value) || null;
+  var stock     = parseInt(document.getElementById('prod-stock').value);
+  var image     = document.getElementById('prod-image').value.trim();
+  var featured  = document.getElementById('prod-featured').checked;
+
+  // Validation
+  if (!bizId)           { showToast('Please select a business', 'error'); return; }
+  if (!name)            { showToast('Product name is required', 'error'); return; }
+  if (!category)        { showToast('Please select a category', 'error'); return; }
+  if (!price || price <= 0) { showToast('Please enter a valid price', 'error'); return; }
+  if (isNaN(stock) || stock < 0) { showToast('Please enter a valid stock quantity', 'error'); return; }
+  if (salePrice && salePrice >= price) { showToast('Sale price must be less than the original price', 'error'); return; }
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner"></span> Adding Product…';
+
+  try {
+    var res = await apiCall('/products', {
+      method: 'POST',
+      body: JSON.stringify({
+        business_id: parseInt(bizId),
+        name:        name,
+        description: desc,
+        price:       price,
+        sale_price:  salePrice,
+        category:    category,
+        unit:        unit,
+        stock:       stock,
+        image:       image,
+        is_featured: featured
+      })
+    });
+
+    showToast(name + ' added successfully!', 'success');
+
+    // Track added products
+    addedProducts.push({ name: name, price: price, sale_price: salePrice, unit: unit });
+    renderAddedProducts(bizId);
+
+    // Reset form (keep business selected)
+    document.getElementById('product-form').reset();
+    document.getElementById('business-select').value = bizId;
+    document.getElementById('img-preview').style.display = 'none';
+    document.getElementById('price-preview').style.display = 'none';
+
+    btn.disabled  = false;
+    btn.innerHTML = '📦 Add Product';
+
+  } catch(err) {
+    showToast(err.message, 'error');
+    btn.disabled  = false;
+    btn.innerHTML = '📦 Add Product';
+  }
+});
+
+function renderAddedProducts(bizId) {
+  var wrap = document.getElementById('added-products');
+  var list = document.getElementById('added-list');
+  wrap.style.display = 'block';
+
+  document.getElementById('view-shop-btn').href = 'product.html?business=' + bizId;
+
+  list.innerHTML = addedProducts.map(function(p) {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem;background:#fff;border:1px solid var(--border);border-radius:10px">' +
+      '<div>' +
+        '<div style="font-weight:600">' + p.name + '</div>' +
+        '<div style="font-size:0.82rem;color:var(--muted)">per ' + p.unit + '</div>' +
+      '</div>' +
+      '<div style="font-weight:700;color:var(--saffron)">₹' + parseFloat(p.sale_price || p.price).toFixed(2) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function addAnother() {
+  document.getElementById('prod-name').focus();
+  window.scrollTo({ top: 300, behavior: 'smooth' });
+}
+
+</script>
+</body>
+</html>

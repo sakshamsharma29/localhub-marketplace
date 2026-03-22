@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LocalHub — Shop Local, Support Local</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <p class="hero-subtitle">🌿 Your Neighbourhood Marketplace</p>
+        <h1 class="hero-title">Discover <em>Local</em> Businesses Near You</h1>
+        <p class="hero-desc">Support local farmers, bakers, and artisans. Fresh produce, handmade goods, and neighbourhood favourites — delivered to your door.</p>
+        <div class="hero-actions">
+          <a href="business-list.html" class="btn btn-primary">Explore Businesses</a>
+          <a href="add-business.html" class="btn btn-ghost" style="border-color:rgba(255,255,255,0.3);color:#fff">List Your Business</a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-number" id="stat-businesses">—</div>
+            <div class="hero-stat-label">Local Businesses</div>
+          </div>
+          <div>
+            <div class="hero-stat-number" id="stat-products">—</div>
+            <div class="hero-stat-label">Products Listed</div>
+          </div>
+          <div>
+            <div class="hero-stat-number">4.8★</div>
+            <div class="hero-stat-label">Avg. Rating</div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image-grid">
+        <div class="hero-img-card">
+          <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80" alt="Fresh Vegetables">
+          <div class="hero-img-overlay">🥦 Fresh Vegetables</div>
+        </div>
+        <div class="hero-img-card">
+          <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&q=80" alt="Bakery">
+          <div class="hero-img-overlay">🥐 Bakery</div>
+        </div>
+        <div class="hero-img-card">
+          <img src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=300&q=80" alt="Dairy">
+          <div class="hero-img-overlay">🥛 Dairy</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Search Bar -->
+<div class="search-bar-section">
+  <div class="container">
+    <div class="search-bar-inner">
+      <input type="text" id="search-input" placeholder="Search for vegetables, sweets, dairy products…" class="form-control" style="max-width:500px" onkeydown="if(event.key==='Enter') doSearch()">
+      <select id="cat-select" class="form-control" style="width:auto">
+        <option value="">All Categories</option>
+      </select>
+      <button class="btn btn-primary" onclick="doSearch()">Search</button>
+    </div>
+  </div>
+</div>
+
+<!-- Categories -->
+<section class="section" style="padding-bottom:0">
+  <div class="container">
+    <div class="section-header">
+      <div><h2 class="section-title">Browse by Category</h2><p class="section-sub">Find exactly what you need</p></div>
+    </div>
+    <div id="category-grid" class="grid-4"></div>
+  </div>
+</section>
+
+<!-- Featured Businesses -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div><h2 class="section-title">Local Businesses</h2><p class="section-sub">Trusted shops near you</p></div>
+      <a href="business-list.html" class="btn btn-ghost btn-sm">View all →</a>
+    </div>
+    <div id="businesses-grid" class="grid-3">
+      <div class="loading-page" style="grid-column:1/-1">
+        <div class="spinner" style="border-color:var(--border);border-top-color:var(--saffron)"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section" style="background:#fff;padding:3rem 0">
+  <div class="container">
+    <div class="section-header">
+      <div><h2 class="section-title">Fresh Today</h2><p class="section-sub">Handpicked from local shops</p></div>
+    </div>
+    <div id="products-grid" class="grid-4">
+      <div class="loading-page" style="grid-column:1/-1">
+        <div class="spinner" style="border-color:var(--border);border-top-color:var(--saffron)"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why LocalHub -->
+<section class="section">
+  <div class="container">
+    <h2 class="section-title text-center" style="margin-bottom:2.5rem">Why Choose LocalHub?</h2>
+    <div class="grid-3">
+      <div class="card" style="padding:2rem;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:1rem">🌱</div>
+        <h3>Support Local Economy</h3>
+        <p class="text-muted" style="margin-top:0.5rem">Every purchase directly supports a neighbourhood business and family.</p>
+      </div>
+      <div class="card" style="padding:2rem;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:1rem">🚴</div>
+        <h3>Fast Local Delivery</h3>
+        <p class="text-muted" style="margin-top:0.5rem">Same-day delivery from businesses within your area.</p>
+      </div>
+      <div class="card" style="padding:2rem;text-align:center">
+        <div style="font-size:2.5rem;margin-bottom:1rem">🤝</div>
+        <h3>Trusted Community</h3>
+        <p class="text-muted" style="margin-top:0.5rem">Verified local businesses with real reviews from your community.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section style="background:var(--dark);padding:4rem 0;text-align:center">
+  <div class="container">
+    <h2 style="color:#fff;margin-bottom:0.75rem">Own a Local Business?</h2>
+    <p style="color:#9CA3AF;margin-bottom:2rem;font-size:1.05rem">List your business for free and reach thousands of local customers today.</p>
+    <a href="add-business.html" class="btn btn-primary">Get Started Free →</a>
+  </div>
+</section>
+
+<footer style="background:var(--dark);padding:3rem 0 2rem;border-top:1px solid #374151">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;margin-bottom:2rem">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;color:var(--saffron);margin-bottom:0.75rem">Local<span style="color:#fff">Hub</span></div>
+        <p style="color:#9CA3AF;font-size:0.9rem;line-height:1.7;max-width:260px">Connecting local businesses with their community. Shop local, support local.</p>
+      </div>
+      <div>
+        <h4 style="color:#fff;font-size:0.85rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1rem;font-family:'DM Sans',sans-serif">Explore</h4>
+        <a href="business-list.html" style="display:block;color:#9CA3AF;font-size:0.9rem;padding:0.25rem 0">All Businesses</a>
+        <a href="business-list.html?category=Grocery" style="display:block;color:#9CA3AF;font-size:0.9rem;padding:0.25rem 0">Grocery</a>
+        <a href="business-list.html?category=Bakery"  style="display:block;color:#9CA3AF;font-size:0.9rem;padding:0.25rem 0">Bakery</a>
+        <a href="business-list.html?category=Dairy"   style="display:block;color:#9CA3AF;font-size:0.9rem;padding:0.25rem 0">Dairy</a>
+      </div>
+      <div>
+        <h4 style="color:#fff;font-size:0.85rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1rem;font-family:'DM Sans',sans-serif">Account</h4>
+        <a href="login.html"    style="display:block;color:#9CA3AF;font-size:0.9rem;padding:0.25rem 0">Login</a>
+        <a href="register.html" style="display:block;color:#9CA3AF;font-size:0.9rem;padding:0.25rem 0">Register</a>
+        <a href="cart.html"     style="display:block;color:#9CA3AF;font-size:0.9rem;padding:0.25rem 0">My Cart</a>
+      </div>
+      <div>
+        <h4 style="color:#fff;font-size:0.85rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1rem;font-family:'DM Sans',sans-serif">Business</h4>
+        <a href="register.html"  style="display:block;color:#9CA3AF;font-size:0.9rem;padding:0.25rem 0">List Your Business</a>
+      </div>
+    </div>
+    <div style="border-top:1px solid #374151;padding-top:1.5rem;display:flex;justify-content:space-between;font-size:0.85rem;color:#9CA3AF">
+      <span>© 2024 LocalHub. All rights reserved.</span>
+      <span>Made with ♥ for local communities</span>
+    </div>
+  </div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+var catIcons = { Grocery:'🥦', Bakery:'🥐', Dairy:'🥛', Meat:'🥩', Spices:'🌶', Pharmacy:'💊', Electronics:'📱', Clothing:'👗', Restaurant:'🍽', Other:'🏪' };
+
+window.addEventListener('load', function() {
+  loadAll();
+});
+
+async function loadAll() {
+  // Load categories
+  try {
+    var cats = await apiCall('/businesses/categories');
+    var catGrid = document.getElementById('category-grid');
+    var catSel  = document.getElementById('cat-select');
+    catGrid.innerHTML = '';
+    cats.slice(0, 8).forEach(function(c) {
+      // Category cards
+      var card = document.createElement('a');
+      card.href = 'business-list.html?category=' + encodeURIComponent(c);
+      card.className = 'card';
+      card.style.cssText = 'padding:1.5rem;text-align:center;cursor:pointer;text-decoration:none;color:inherit;display:block';
+      card.innerHTML = '<div style="font-size:2rem;margin-bottom:0.5rem">' + (catIcons[c]||'🏪') + '</div><div style="font-weight:600;font-size:0.9rem">' + c + '</div>';
+      catGrid.appendChild(card);
+      // Dropdown option
+      catSel.innerHTML += '<option value="' + c + '">' + c + '</option>';
+    });
+  } catch(e) { console.error('Cat error:', e); }
+
+  // Load businesses
+  try {
+    var bizList = await apiCall('/businesses?limit=6');
+    var bizGrid = document.getElementById('businesses-grid');
+    document.getElementById('stat-businesses').textContent = bizList.length + '+';
+
+    if (!bizList.length) {
+      bizGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:2rem">No businesses found.</div>';
+    } else {
+      bizGrid.innerHTML = '';
+      bizList.forEach(function(b) {
+        var card = document.createElement('div');
+        card.className = 'card business-card';
+        card.style.cursor = 'pointer';
+        card.innerHTML =
+          '<div class="business-card-img">' +
+            '<img src="' + (b.banner || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80') + '" alt="' + b.name + '" onerror="this.src=\'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80\'">' +
+          '</div>' +
+          '<div class="business-card-body">' +
+            '<div class="business-card-cat">' + (b.category || 'Local Shop') + '</div>' +
+            '<div class="business-card-name">' + b.name + '</div>' +
+            '<p style="font-size:0.82rem;color:var(--muted);margin:0.25rem 0">' + (b.description ? b.description.slice(0,70)+'…' : '') + '</p>' +
+            '<div class="business-card-meta">' +
+              '<span style="color:#F59E0B">' + renderStars(b.rating || 4.5).replace(/<[^>]*>/g,'') + '</span>' +
+              '<span>📍 ' + b.city + '</span>' +
+            '</div>' +
+          '</div>';
+        card.addEventListener('click', function() {
+          window.location.href = 'product.html?business=' + b.id;
+        });
+        bizGrid.appendChild(card);
+      });
+    }
+  } catch(e) {
+    console.error('Biz error:', e);
+    document.getElementById('businesses-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:2rem">Failed to load businesses. Is server running?</div>';
+  }
+
+  // Load products
+  try {
+    var prodList = await apiCall('/products?limit=8');
+    var prodGrid = document.getElementById('products-grid');
+    document.getElementById('stat-products').textContent = prodList.length + '+';
+
+    if (!prodList.length) {
+      prodGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--muted)">No products found.</div>';
+    } else {
+      prodGrid.innerHTML = '';
+      prodList.forEach(function(p) {
+        var price  = p.sale_price || p.price;
+        var imgSrc = p.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80';
+
+        var card = document.createElement('div');
+        card.className = 'card product-card';
+        card.innerHTML =
+          '<div class="product-img" style="position:relative">' +
+            '<img src="' + imgSrc + '" alt="' + p.name + '" style="width:100%;height:200px;object-fit:cover" onerror="this.src=\'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80\'">' +
+            (p.sale_price ? '<div class="sale-tag">SALE</div>' : '') +
+          '</div>' +
+          '<div class="product-body" style="padding:1rem">' +
+            '<div class="product-name" style="font-weight:600;margin-bottom:0.2rem">' + p.name + '</div>' +
+            '<div class="product-biz" style="font-size:0.8rem;color:var(--muted);margin-bottom:0.4rem">📍 ' + (p.business_name || '') + '</div>' +
+            '<div class="price-row">' +
+              '<span class="price" style="font-size:1.1rem;font-weight:700">₹' + parseFloat(price).toFixed(2) + '</span>' +
+              (p.sale_price ? '<span class="price-old" style="font-size:0.85rem;color:var(--muted);text-decoration:line-through">₹' + parseFloat(p.price).toFixed(2) + '</span>' : '') +
+              '<span style="font-size:0.78rem;color:var(--muted)">/ ' + (p.unit||'pc') + '</span>' +
+            '</div>' +
+            '<div style="display:flex;gap:0.5rem;margin-top:0.75rem">' +
+              '<a href="product.html?id=' + p.id + '" class="btn btn-ghost btn-sm" style="flex:1;text-align:center">View</a>' +
+              '<button class="btn btn-primary btn-sm add-to-cart-btn" data-id="' + p.id + '" style="flex:1" ' + (p.stock <= 0 ? 'disabled' : '') + '>Add to Cart</button>' +
+            '</div>' +
+          '</div>';
+
+        // Store product on button safely
+        var atcBtn = card.querySelector('.add-to-cart-btn');
+        atcBtn._product = {
+          id:            p.id,
+          name:          p.name,
+          price:         p.price,
+          sale_price:    p.sale_price || null,
+          image:         p.image || '',
+          business_id:   p.business_id,
+          business_name: p.business_name || '',
+          unit:          p.unit || 'pc'
+        };
+        atcBtn.addEventListener('click', function() {
+          addToCart(this._product, 1);
+        });
+
+        prodGrid.appendChild(card);
+      });
+    }
+  } catch(e) { console.error('Prod error:', e); }
+}
+
+function doSearch() {
+  var q   = document.getElementById('search-input').value.trim();
+  var cat = document.getElementById('cat-select').value;
+  var params = new URLSearchParams();
+  if (q)   params.set('search', q);
+  if (cat) params.set('category', cat);
+  window.location.href = 'business-list.html?' + params.toString();
+}
+
+document.getElementById('search-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doSearch();
+});
+
+</script>
+</body>
+</html>

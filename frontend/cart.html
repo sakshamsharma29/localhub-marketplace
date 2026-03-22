@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<div style="background:var(--white,#fff);border-bottom:1px solid var(--border);padding:0.75rem 0">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a><span>›</span><span>Cart</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:3rem">
+  <h1 style="margin-bottom:1.75rem">🛒 Shopping Cart</h1>
+
+  <div id="cart-wrap" style="display:grid;grid-template-columns:1fr 360px;gap:2rem">
+
+    <!-- Left: Items -->
+    <div id="cart-items"></div>
+
+    <!-- Right: Summary -->
+    <div id="cart-summary"></div>
+
+  </div>
+</div>
+
+<footer style="background:var(--dark);padding:2rem 0;text-align:center;color:#9CA3AF;font-size:0.88rem">
+  <div class="container">© 2024 LocalHub</div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+function goToCheckout() {
+  var token = localStorage.getItem('token');
+  console.log('Token on checkout click:', token ? 'EXISTS' : 'MISSING');
+  if (token && token.length > 10) {
+    window.location.href = 'checkout.html';
+  } else {
+    window.location.href = 'login.html?redirect=checkout.html';
+  }
+}
+
+function renderCartPage() {
+  var cart = getCart();
+  var itemsEl   = document.getElementById('cart-items');
+  var summaryEl = document.getElementById('cart-summary');
+
+  // ── Empty cart ──
+  if (!cart.length) {
+    document.getElementById('cart-wrap').style.gridTemplateColumns = '1fr';
+    itemsEl.innerHTML =
+      '<div style="text-align:center;padding:4rem 2rem">' +
+        '<div style="font-size:4rem;margin-bottom:1rem">🛒</div>' +
+        '<h3 style="margin-bottom:0.5rem">Your cart is empty</h3>' +
+        '<p style="color:var(--muted);margin-bottom:1.5rem">Browse local businesses and add items to your cart</p>' +
+        '<a href="business-list.html" class="btn btn-primary">Shop Now</a>' +
+      '</div>';
+    summaryEl.innerHTML = '';
+    return;
+  }
+
+  document.getElementById('cart-wrap').style.gridTemplateColumns = '1fr 360px';
+
+  // ── Group by business ──
+  var groups = {};
+  cart.forEach(function(item) {
+    var key = item.business_id || 'unknown';
+    if (!groups[key]) groups[key] = { name: item.business_name || 'Local Shop', items: [] };
+    groups[key].items.push(item);
+  });
+
+  // ── Render items ──
+  var html = '';
+  Object.keys(groups).forEach(function(bizId) {
+    var group = groups[bizId];
+    html += '<div class="card" style="margin-bottom:1.5rem;overflow:hidden">';
+    html += '<div style="padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;background:var(--cream)">';
+    html += '<span style="font-size:1.1rem">🏪</span><strong>' + group.name + '</strong>';
+    html += '</div>';
+
+    group.items.forEach(function(item) {
+      var price = item.sale_price || item.price;
+      var imgSrc = item.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&q=60';
+      html +=
+        '<div id="cart-item-' + item.id + '" style="display:flex;gap:1rem;padding:1.25rem;border-bottom:1px solid var(--border);align-items:center">' +
+          '<div style="width:80px;height:80px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--cream)">' +
+            '<img src="' + imgSrc + '" alt="' + item.name + '" style="width:100%;height:100%;object-fit:cover" onerror="this.src=\'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200&q=60\'">' +
+          '</div>' +
+          '<div style="flex:1">' +
+            '<div style="font-weight:700;margin-bottom:0.15rem">' + item.name + '</div>' +
+            '<div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem">' + (item.business_name || '') + '</div>' +
+            '<div style="font-weight:700;color:var(--saffron)">₹' + parseFloat(price).toFixed(2) + ' / ' + (item.unit || 'pc') + '</div>' +
+          '</div>' +
+          '<div style="display:flex;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin:0 1rem">' +
+            '<button onclick="changeQty(' + item.id + ', -1)" style="padding:0.5rem 0.85rem;background:var(--cream);border:none;font-size:1rem;cursor:pointer;font-weight:700">−</button>' +
+            '<span id="qty-' + item.id + '" style="padding:0.5rem 1rem;font-weight:700;min-width:44px;text-align:center;display:flex;align-items:center;justify-content:center">' + item.quantity + '</span>' +
+            '<button onclick="changeQty(' + item.id + ', 1)"  style="padding:0.5rem 0.85rem;background:var(--cream);border:none;font-size:1rem;cursor:pointer;font-weight:700">+</button>' +
+          '</div>' +
+          '<div style="text-align:right;min-width:80px">' +
+            '<div style="font-weight:700;font-size:1rem">₹' + parseFloat(price * item.quantity).toFixed(2) + '</div>' +
+            '<button onclick="removeItem(' + item.id + ')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;margin-top:0.4rem" title="Remove">🗑</button>' +
+          '</div>' +
+        '</div>';
+    });
+    html += '</div>';
+  });
+
+  html += '<a href="business-list.html" class="btn btn-ghost" style="margin-top:0.5rem">← Continue Shopping</a>';
+  itemsEl.innerHTML = html;
+
+  // ── Render summary ──
+  var subtotal = 0;
+  cart.forEach(function(item){ subtotal += (item.sale_price || item.price) * item.quantity; });
+  var delivery = subtotal >= 300 ? 0 : 30;
+  var total    = subtotal + delivery;
+
+  summaryEl.innerHTML =
+    '<div style="background:var(--white,#fff);border:1px solid var(--border);border-radius:16px;padding:1.5rem;position:sticky;top:80px">' +
+      '<h3 style="margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">Order Summary</h3>' +
+      '<div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.9rem"><span>Subtotal</span><span>₹' + subtotal.toFixed(2) + '</span></div>' +
+      '<div style="display:flex;justify-content:space-between;padding:0.6rem 0;border-bottom:1px solid var(--border);font-size:0.9rem">' +
+        '<span>Delivery</span>' +
+        '<span style="' + (delivery === 0 ? 'color:#0F6B4F;font-weight:600' : '') + '">' + (delivery === 0 ? 'FREE' : '₹' + delivery.toFixed(2)) + '</span>' +
+      '</div>' +
+      (delivery > 0 ? '<div style="font-size:0.78rem;color:var(--muted);padding:0.4rem 0">Add ₹' + (300 - subtotal).toFixed(0) + ' more for free delivery</div>' : '') +
+      '<div style="display:flex;justify-content:space-between;padding:0.75rem 0;font-weight:700;font-size:1.05rem"><span>Total</span><span style="color:var(--saffron)">₹' + total.toFixed(2) + '</span></div>' +
+      '<button onclick="goToCheckout()" class="btn btn-primary" style="width:100%;text-align:center;display:block;margin-top:1rem">Proceed to Checkout</button>' +
+      '<button onclick="clearCartConfirm()" style="width:100%;margin-top:0.6rem;padding:0.6rem;background:none;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.88rem;color:var(--muted)">Clear Cart</button>' +
+    '</div>';
+}
+
+function changeQty(id, delta) {
+  var cart = getCart();
+  for (var i = 0; i < cart.length; i++) {
+    if (cart[i].id === id) {
+      cart[i].quantity = Math.max(1, cart[i].quantity + delta);
+      break;
+    }
+  }
+  saveCart(cart);
+  renderCartPage();
+}
+
+function removeItem(id) {
+  removeFromCart(id);
+  renderCartPage();
+  showToast('Item removed from cart');
+}
+
+function clearCartConfirm() {
+  if (confirm('Are you sure you want to clear your cart?')) {
+    clearCart();
+    renderCartPage();
+  }
+}
+
+// Run on load
+window.addEventListener('load', function() {
+  renderCartPage();
+});
+
+</script>
+</body>
+</html>
