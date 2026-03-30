@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Businesses — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+  <style>
+    .biz-card {
+      background:#fff;
+      border-radius:16px;
+      border:1px solid var(--border);
+      overflow:hidden;
+      cursor:pointer;
+      transition:all 0.25s ease;
+      text-decoration:none;
+      color:inherit;
+      display:block;
+    }
+    .biz-card:hover {
+      box-shadow:0 8px 30px rgba(0,0,0,0.12);
+      transform:translateY(-3px);
+    }
+    .biz-card img {
+      width:100%;
+      height:170px;
+      object-fit:cover;
+      display:block;
+    }
+    .biz-card-body {
+      padding:1rem;
+    }
+    .biz-cat {
+      color:var(--saffron);
+      font-size:0.75rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+      margin-bottom:0.3rem;
+    }
+    .biz-name {
+      font-weight:700;
+      font-size:1rem;
+      margin-bottom:0.3rem;
+    }
+    .biz-desc {
+      font-size:0.82rem;
+      color:var(--muted);
+      margin-bottom:0.6rem;
+      line-height:1.5;
+    }
+    .biz-meta {
+      display:flex;
+      gap:0.75rem;
+      font-size:0.82rem;
+      color:var(--muted);
+      flex-wrap:wrap;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<div class="container">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a> <span>/</span> <span>Businesses</span>
+  </div>
+</div>
+
+<div class="search-bar-section">
+  <div class="container">
+    <div class="search-bar-inner">
+      <input type="text" id="search-input" placeholder="Search businesses…" class="form-control"
+        style="max-width:400px" onkeydown="if(event.key==='Enter') loadBusinesses()">
+      <select id="cat-filter" class="form-control" style="width:auto" onchange="loadBusinesses()">
+        <option value="">All Categories</option>
+      </select>
+      <select id="city-filter" class="form-control" style="width:auto" onchange="loadBusinesses()">
+        <option value="">All Cities</option>
+        <option value="Jaipur">Jaipur</option>
+        <option value="Delhi">Delhi</option>
+        <option value="Mumbai">Mumbai</option>
+      </select>
+      <button class="btn btn-primary" onclick="loadBusinesses()">Filter</button>
+      <button class="btn btn-ghost"    onclick="resetFilters()">Clear</button>
+    </div>
+  </div>
+</div>
+
+<div class="container section">
+
+  <div id="category-pills" class="category-pills"></div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+    <h2 class="section-title">All Businesses</h2>
+    <span id="result-count" class="text-muted" style="font-size:0.9rem"></span>
+  </div>
+
+  <div id="businesses-grid" class="grid-3">
+    <div class="loading-page" style="grid-column:1/-1">
+      <div class="spinner" style="border-color:var(--border);border-top-color:var(--saffron)"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer style="background:var(--dark);padding:2rem 0;text-align:center;color:#9CA3AF;font-size:0.88rem;margin-top:3rem">
+  <div class="container">© 2024 LocalHub — Supporting Local Communities</div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('search'))   document.getElementById('search-input').value = params.get('search');
+  if (params.get('city'))     document.getElementById('city-filter').value   = params.get('city');
+
+  try {
+    const cats = await apiCall('/businesses/categories');
+    const pills = document.getElementById('category-pills');
+    const sel   = document.getElementById('cat-filter');
+
+    pills.innerHTML = `<div class="pill active" onclick="setCat('')">All</div>`;
+    cats.forEach(cat => {
+      pills.innerHTML += `<div class="pill" onclick="setCat('${cat}')">${cat}</div>`;
+      sel.innerHTML   += `<option value="${cat}">${cat}</option>`;
+    });
+
+    if (params.get('category')) {
+      sel.value = params.get('category');
+    }
+  } catch(e) { console.error(e); }
+
+  loadBusinesses();
+});
+
+function setCat(cat) {
+  document.getElementById('cat-filter').value = cat;
+  document.querySelectorAll('#category-pills .pill').forEach(p => {
+    p.classList.toggle('active', p.textContent.trim() === (cat || 'All'));
+  });
+  loadBusinesses();
+}
+
+async function loadBusinesses() {
+  const grid   = document.getElementById('businesses-grid');
+  const search = document.getElementById('search-input').value.trim();
+  const cat    = document.getElementById('cat-filter').value;
+  const city   = document.getElementById('city-filter').value;
+
+  grid.innerHTML = `<div class="loading-page" style="grid-column:1/-1"><div class="spinner" style="border-color:var(--border);border-top-color:var(--saffron)"></div></div>`;
+
+  try {
+    const qs = new URLSearchParams({ limit: 30 });
+    if (search) qs.set('search', search);
+    if (cat)    qs.set('category', cat);
+    if (city)   qs.set('city', city);
+
+    const businesses = await apiCall('/businesses?' + qs.toString());
+    document.getElementById('result-count').textContent = businesses.length + ' found';
+
+    if (!businesses.length) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <div style="font-size:3rem;margin-bottom:1rem">🏪</div>
+        <h3>No businesses found</h3>
+        <p>Try a different search or category</p>
+        <button class="btn btn-outline" onclick="resetFilters()">Clear Filters</button>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = businesses.map(b => {
+      const img  = b.banner || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80';
+      const desc = b.description ? b.description.slice(0, 80) + '…' : '';
+      const rating = b.rating ? Number(b.rating).toFixed(1) : '4.5';
+      const reviews = b.total_reviews || 0;
+      return `
+        <div class="biz-card" onclick="goToBusiness(${b.id})">
+          <img src="${img}" alt="${b.name}"
+            onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80'">
+          <div class="biz-card-body">
+            <div class="biz-cat">${b.category || 'Local Shop'}</div>
+            <div class="biz-name">${b.name}</div>
+            <div class="biz-desc">${desc}</div>
+            <div class="biz-meta">
+              <span style="color:#F59E0B">${renderStars(b.rating || 4.5)}</span>
+              <span>${rating}</span>
+              <span>(${reviews} reviews)</span>
+              <span>📍 ${b.city}</span>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+  } catch (err) {
+    console.error(err);
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:1rem">⚠️</div>
+      <p>Failed to load businesses. Make sure the server is running.</p>
+      <button class="btn btn-primary" style="margin-top:1rem" onclick="loadBusinesses()">Try Again</button>
+    </div>`;
+  }
+}
+
+function goToBusiness(id) {
+  window.location.href = 'product.html?business=' + id;
+}
+
+function resetFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('cat-filter').value   = '';
+  document.getElementById('city-filter').value  = '';
+  document.querySelectorAll('#category-pills .pill').forEach(p => {
+    p.classList.toggle('active', p.textContent.trim() === 'All');
+  });
+  loadBusinesses();
+}
+
+</script>
+</body>
+</html>

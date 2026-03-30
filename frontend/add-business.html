@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Your Business — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<div style="background:#fff;border-bottom:1px solid var(--border);padding:0.75rem 0">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a><span>›</span>
+      <span>List Your Business</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;max-width:720px">
+
+  <div style="text-align:center;margin-bottom:2.5rem">
+    <h1 style="margin-bottom:0.5rem">List Your Business 🏪</h1>
+    <p style="color:var(--muted);font-size:1.05rem">Fill in your business details and start receiving orders from local customers today.</p>
+  </div>
+
+  <!-- Auth guard message -->
+  <div id="auth-guard" style="display:none;text-align:center;padding:3rem;background:#fff;border-radius:16px;border:1px solid var(--border)">
+    <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
+    <h3>Please login first</h3>
+    <p style="color:var(--muted);margin-bottom:1.5rem">You need to be logged in as a business owner to list your business.</p>
+    <a href="login.html?redirect=add-business.html" class="btn btn-primary">Login</a>
+    <a href="register.html" class="btn btn-ghost" style="margin-left:0.5rem">Register</a>
+  </div>
+
+  <!-- Business Form -->
+  <div id="biz-form-wrap" style="display:none">
+    <div style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:2rem">
+
+      <!-- Step indicator -->
+      <div style="display:flex;gap:0;margin-bottom:2rem;border-radius:8px;overflow:hidden;border:1px solid var(--border)">
+        <div style="flex:1;padding:0.6rem;text-align:center;font-size:0.85rem;font-weight:600;background:var(--saffron);color:#fff">1. Basic Info</div>
+        <div style="flex:1;padding:0.6rem;text-align:center;font-size:0.85rem;font-weight:600;background:var(--cream);color:var(--muted)">2. Location</div>
+        <div style="flex:1;padding:0.6rem;text-align:center;font-size:0.85rem;font-weight:600;background:var(--cream);color:var(--muted)">3. Contact</div>
+      </div>
+
+      <form id="business-form">
+
+        <!-- Section 1: Basic Info -->
+        <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+          <h3 style="margin-bottom:1.25rem;color:var(--saffron)">📋 Basic Information</h3>
+
+          <div class="form-group" style="margin-bottom:1rem">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Business Name *</label>
+            <input type="text" id="biz-name" class="form-control" placeholder="e.g. Ravi Fresh Vegetables" required>
+          </div>
+
+          <div class="form-group" style="margin-bottom:1rem">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Category *</label>
+            <select id="biz-category" class="form-control" required>
+              <option value="">Select a category</option>
+              <option value="Grocery">🥦 Grocery</option>
+              <option value="Bakery">🥐 Bakery</option>
+              <option value="Dairy">🥛 Dairy</option>
+              <option value="Meat">🥩 Meat & Poultry</option>
+              <option value="Spices">🌶 Spices & Masala</option>
+              <option value="Pharmacy">💊 Pharmacy</option>
+              <option value="Restaurant">🍽 Restaurant</option>
+              <option value="Clothing">👗 Clothing</option>
+              <option value="Electronics">📱 Electronics</option>
+              <option value="Other">🏪 Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Business Description *</label>
+            <textarea id="biz-desc" class="form-control" rows="4" placeholder="Tell customers about your business, what makes you special, your specialities…" required></textarea>
+            <div style="font-size:0.75rem;color:var(--muted);margin-top:0.3rem">Minimum 30 characters. A good description helps customers find you.</div>
+          </div>
+        </div>
+
+        <!-- Section 2: Location -->
+        <div style="margin-bottom:1.5rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border)">
+          <h3 style="margin-bottom:1.25rem;color:var(--saffron)">📍 Location</h3>
+
+          <div class="form-group" style="margin-bottom:1rem">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Street Address *</label>
+            <input type="text" id="biz-address" class="form-control" placeholder="Shop no., building, street, area" required>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">City *</label>
+              <input type="text" id="biz-city" class="form-control" placeholder="e.g. Jaipur" required>
+            </div>
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">State *</label>
+              <input type="text" id="biz-state" class="form-control" placeholder="e.g. Rajasthan" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Pincode *</label>
+            <input type="text" id="biz-pincode" class="form-control" placeholder="6-digit pincode" maxlength="6" style="max-width:180px" required>
+          </div>
+        </div>
+
+        <!-- Section 3: Contact -->
+        <div style="margin-bottom:2rem">
+          <h3 style="margin-bottom:1.25rem;color:var(--saffron)">📞 Contact Details</h3>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Phone Number *</label>
+              <input type="tel" id="biz-phone" class="form-control" placeholder="10-digit mobile" required>
+            </div>
+            <div class="form-group">
+              <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Business Email</label>
+              <input type="email" id="biz-email" class="form-control" placeholder="business@email.com">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Website (optional)</label>
+            <input type="url" id="biz-website" class="form-control" placeholder="https://yourbusiness.com">
+          </div>
+        </div>
+
+        <!-- Terms -->
+        <div style="margin-bottom:1.5rem;padding:1rem;background:var(--cream);border-radius:8px;font-size:0.85rem;color:var(--muted)">
+          <label style="display:flex;gap:0.75rem;align-items:flex-start;cursor:pointer">
+            <input type="checkbox" id="biz-terms" style="margin-top:3px;flex-shrink:0">
+            <span>I confirm that all information provided is accurate and I agree to LocalHub's <a href="#" style="color:var(--saffron)">Terms of Service</a>. I understand that my business listing will be reviewed before going live.</span>
+          </label>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn btn-primary btn-full" style="font-size:1rem;padding:0.9rem">
+          🚀 Submit Business Listing
+        </button>
+
+      </form>
+    </div>
+
+    <!-- What happens next -->
+    <div style="margin-top:2rem;padding:1.5rem;background:#fff;border-radius:16px;border:1px solid var(--border)">
+      <h4 style="margin-bottom:1rem">What happens next?</h4>
+      <div style="display:flex;flex-direction:column;gap:0.75rem">
+        <div style="display:flex;gap:1rem;align-items:center;font-size:0.9rem">
+          <span style="width:28px;height:28px;background:var(--saffron);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">1</span>
+          <span>Your listing is submitted and under review</span>
+        </div>
+        <div style="display:flex;gap:1rem;align-items:center;font-size:0.9rem">
+          <span style="width:28px;height:28px;background:var(--saffron);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">2</span>
+          <span>Start adding your products from the dashboard</span>
+        </div>
+        <div style="display:flex;gap:1rem;align-items:center;font-size:0.9rem">
+          <span style="width:28px;height:28px;background:var(--saffron);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">3</span>
+          <span>Customers start finding and ordering from your shop!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Success Modal -->
+<div id="success-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);align-items:center;justify-content:center;z-index:200">
+  <div style="background:#fff;border-radius:20px;max-width:440px;width:90%;padding:2.5rem;text-align:center">
+    <div style="font-size:4rem;margin-bottom:1rem">🎉</div>
+    <h2 style="margin-bottom:0.5rem">Business Listed!</h2>
+    <p style="color:var(--muted);margin-bottom:0.5rem">Your business has been successfully registered on LocalHub.</p>
+    <p id="new-biz-name" style="color:var(--saffron);font-weight:700;font-size:1.1rem;margin-bottom:1rem"></p>
+    <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.5rem">Now add your products so customers can start ordering!</p>
+    <a id="add-prod-btn" href="add-product.html" class="btn btn-primary" style="display:block;margin-bottom:0.6rem">+ Add Products Now</a>
+    <a id="view-biz-btn" href="dashboard.html" class="btn btn-outline" style="display:block;margin-bottom:0.6rem">Go to Dashboard</a>
+    <a href="index.html" class="btn btn-ghost" style="display:block">Go to Homepage</a>
+  </div>
+</div>
+
+<footer style="background:var(--dark);padding:2rem 0;text-align:center;color:#9CA3AF;font-size:0.88rem">
+  <div class="container">© 2024 LocalHub</div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+window.addEventListener('load', function() {
+  var token = localStorage.getItem('token');
+  var user  = null;
+  try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+
+  if (!token) {
+    document.getElementById('auth-guard').style.display = 'block';
+    return;
+  }
+
+  // Show form
+  document.getElementById('biz-form-wrap').style.display = 'block';
+
+  // Pre-fill phone if available
+  if (user && user.phone) {
+    document.getElementById('biz-phone').value = user.phone;
+  }
+});
+
+document.getElementById('business-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  var name     = document.getElementById('biz-name').value.trim();
+  var category = document.getElementById('biz-category').value;
+  var desc     = document.getElementById('biz-desc').value.trim();
+  var address  = document.getElementById('biz-address').value.trim();
+  var city     = document.getElementById('biz-city').value.trim();
+  var state    = document.getElementById('biz-state').value.trim();
+  var pincode  = document.getElementById('biz-pincode').value.trim();
+  var phone    = document.getElementById('biz-phone').value.trim();
+  var email    = document.getElementById('biz-email').value.trim();
+  var website  = document.getElementById('biz-website').value.trim();
+  var terms    = document.getElementById('biz-terms').checked;
+
+  // Validation
+  if (!name)                         { showToast('Business name is required', 'error'); return; }
+  if (!category)                     { showToast('Please select a category', 'error'); return; }
+  if (!desc || desc.length < 30)     { showToast('Description must be at least 30 characters', 'error'); return; }
+  if (!address || !city || !state)   { showToast('Please fill in your full address', 'error'); return; }
+  if (!/^\d{6}$/.test(pincode))      { showToast('Enter a valid 6-digit pincode', 'error'); return; }
+  if (!/^\d{10}$/.test(phone))       { showToast('Enter a valid 10-digit phone number', 'error'); return; }
+  if (!terms)                        { showToast('Please accept the Terms of Service', 'error'); return; }
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner"></span> Submitting…';
+
+  try {
+    var res = await apiCall('/businesses', {
+      method: 'POST',
+      body: JSON.stringify({
+        name:        name,
+        category:    category,
+        description: desc,
+        address:     address,
+        city:        city,
+        state:       state,
+        pincode:     pincode,
+        phone:       phone,
+        email:       email,
+        website:     website
+      })
+    });
+
+    // Show success modal
+    document.getElementById('new-biz-name').textContent = res.business.name;
+    document.getElementById('view-biz-btn').href = 'dashboard.html';
+    document.getElementById('add-prod-btn').href = 'add-product.html?business=' + res.business.id;
+    document.getElementById('success-modal').style.display = 'flex';
+
+  } catch(err) {
+    showToast(err.message, 'error');
+    btn.disabled  = false;
+    btn.innerHTML = '🚀 Submit Business Listing';
+  }
+});
+
+</script>
+</body>
+</html>

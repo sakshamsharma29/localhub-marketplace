@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- Left Panel -->
+  <div class="auth-left">
+    <div class="auth-left-inner">
+      <a href="index.html" style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--saffron);text-decoration:none;display:block;margin-bottom:2rem">Local<span style="color:#fff">Hub</span></a>
+      <h1 style="color:#fff">Join the local marketplace community</h1>
+      <p style="color:#9CA3AF;margin-top:1rem;line-height:1.8">Whether you're a customer or a business owner — LocalHub is for you.</p>
+      <div style="margin-top:2.5rem;display:flex;flex-direction:column;gap:1.25rem">
+        <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:1.25rem">
+          <div style="font-weight:700;color:#fff;margin-bottom:0.4rem">🛒 For Customers</div>
+          <div style="color:#9CA3AF;font-size:0.88rem">Browse and buy from local businesses.</div>
+        </div>
+        <div style="background:rgba(255,107,43,0.1);border-radius:12px;padding:1.25rem">
+          <div style="font-weight:700;color:var(--saffron);margin-bottom:0.4rem">🏪 For Business Owners</div>
+          <div style="color:#9CA3AF;font-size:0.88rem">List your business for free. Reach thousands of local customers.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="auth-right">
+    <div class="auth-box">
+      <h2>Create Your Account</h2>
+      <p style="color:var(--muted);margin-bottom:2rem">Already registered? <a href="login.html" style="color:var(--saffron);font-weight:600">Login here</a></p>
+
+      <form id="register-form" novalidate>
+        <div class="form-group">
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Full Name</label>
+          <input type="text" id="name" class="form-control" placeholder="Your full name" required autocomplete="name">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="you@example.com" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Phone Number</label>
+            <input type="tel" id="phone" class="form-control" placeholder="10-digit mobile">
+          </div>
+        </div>
+        <div class="form-group">
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">I want to…</label>
+          <select id="role" class="form-control">
+            <option value="customer">Shop — I'm a customer</option>
+            <option value="business_owner">Sell — I'm a business owner</option>
+          </select>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Min. 6 characters" required autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Confirm Password</label>
+            <input type="password" id="confirm-password" class="form-control" placeholder="Re-enter password" required>
+          </div>
+        </div>
+        <div style="margin-bottom:1.25rem">
+          <label style="display:flex;gap:0.6rem;align-items:flex-start;cursor:pointer;font-size:0.85rem;color:var(--muted)">
+            <input type="checkbox" id="terms" style="margin-top:3px">
+            I agree to the <a href="#" style="color:var(--saffron)">Terms of Service</a>
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+      </form>
+
+      <div style="text-align:center;margin-top:1rem">
+        <a href="index.html" style="font-size:0.85rem;color:var(--muted)">← Back to Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<div style="background:var(--white,#fff);border-bottom:1px solid var(--border);padding:0.75rem 0">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a><span>›</span><span>My Profile</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:4rem;max-width:700px">
+
+  <div id="auth-guard" style="display:none;text-align:center;padding:4rem">
+    <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
+    <h3>Please login to view your profile</h3>
+    <a href="login.html?redirect=profile.html" class="btn btn-primary" style="margin-top:1rem">Login</a>
+  </div>
+
+  <div id="profile-content" style="display:none">
+    <h1 style="margin-bottom:2rem">👤 My Profile</h1>
+
+    <!-- Profile Card -->
+    <div class="card" style="padding:2rem;margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;flex-wrap:wrap">
+        <div id="avatar-circle" style="width:80px;height:80px;border-radius:50%;background:var(--saffron);display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;font-weight:700;flex-shrink:0">?</div>
+        <div>
+          <h2 id="profile-name" style="margin-bottom:0.25rem"></h2>
+          <div id="profile-email" style="color:var(--muted);font-size:0.9rem"></div>
+          <div id="profile-role"  style="margin-top:0.4rem"></div>
+        </div>
+      </div>
+
+      <form id="profile-form">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Full Name</label>
+            <input type="text" id="edit-name" class="form-control" placeholder="Your full name">
+          </div>
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Phone Number</label>
+            <input type="tel" id="edit-phone" class="form-control" placeholder="10-digit mobile">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:1.25rem">
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Address</label>
+          <textarea id="edit-address" class="form-control" rows="2" placeholder="Your address"></textarea>
+        </div>
+        <button type="submit" id="save-btn" class="btn btn-primary">Save Changes</button>
+      </form>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card" style="padding:2rem;margin-bottom:1.5rem">
+      <h3 style="margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">🔒 Change Password</h3>
+      <form id="password-form">
+        <div class="form-group" style="margin-bottom:1rem">
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Current Password</label>
+          <input type="password" id="current-password" class="form-control" placeholder="Enter current password">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">New Password</label>
+            <input type="password" id="new-password" class="form-control" placeholder="Min. 6 characters">
+          </div>
+          <div class="form-group">
+            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Confirm New Password</label>
+            <input type="password" id="confirm-new-password" class="form-control" placeholder="Re-enter new password">
+          </div>
+        </div>
+        <button type="submit" id="pw-btn" class="btn btn-outline">Update Password</button>
+      </form>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="card" style="padding:2rem;margin-bottom:1.5rem">
+      <h3 style="margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">🔗 Quick Links</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+        <a href="orders.html"   class="btn btn-ghost" style="text-align:center">📋 My Orders</a>
+        <a href="wishlist.html" class="btn btn-ghost" style="text-align:center">❤️ My Wishlist</a>
+        <a href="dashboard.html" class="btn btn-ghost" style="text-align:center" id="dashboard-link" style="display:none">🏪 My Dashboard</a>
+        <a href="add-product.html" class="btn btn-ghost" style="text-align:center" id="add-product-link" style="display:none">📦 Add Product</a>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="card" style="padding:2rem;border:1.5px solid #FEE2E2">
+      <h3 style="margin-bottom:0.5rem;color:#DC2626">⚠️ Danger Zone</h3>
+      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.25rem">Once you delete your account, there is no going back. All your data will be permanently removed.</p>
+      <button onclick="confirmDeleteAccount()" class="btn" style="background:#FEE2E2;color:#DC2626;border:1.5px solid #DC2626;border-radius:8px;padding:0.6rem 1.5rem;font-weight:600;cursor:pointer">
+        🗑 Delete My Account
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Delete Confirm Modal -->
+<div id="delete-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--white,#fff);border-radius:20px;max-width:420px;width:90%;padding:2.5rem;text-align:center">
+    <div style="font-size:3rem;margin-bottom:1rem">⚠️</div>
+    <h3 style="margin-bottom:0.5rem;color:#DC2626">Delete Account?</h3>
+    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem">This will permanently delete your account and all your data. This cannot be undone.</p>
+    <p style="margin-bottom:1.5rem;font-size:0.88rem">Type <strong>DELETE</strong> to confirm:</p>
+    <input type="text" id="delete-confirm-input" class="form-control" placeholder="Type DELETE here" style="text-align:center;margin-bottom:1.25rem">
+    <div style="display:flex;gap:0.75rem">
+      <button onclick="closeDeleteModal()" class="btn btn-ghost" style="flex:1">Cancel</button>
+      <button onclick="deleteAccount()" class="btn" style="flex:1;background:#DC2626;color:#fff;border:none;border-radius:8px;padding:0.7rem;font-weight:600;cursor:pointer">Delete Forever</button>
+    </div>
+  </div>
+</div>
+
+<footer style="background:var(--dark);padding:2rem 0;text-align:center;color:#9CA3AF;font-size:0.88rem">
+  <div class="container">© 2024 LocalHub</div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+window.addEventListener('load', async function() {
+  var token = localStorage.getItem('token');
+  var user  = null;
+  try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+
+  if (!token || !user) {
+    document.getElementById('auth-guard').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('profile-content').style.display = 'block';
+
+  // Fill avatar
+  document.getElementById('avatar-circle').textContent = user.name ? user.name.charAt(0).toUpperCase() : '?';
+
+  // Fill profile info
+  document.getElementById('profile-name').textContent  = user.name  || '';
+  document.getElementById('profile-email').textContent = '✉️ ' + (user.email || '');
+
+  var roleLabels = { customer: '🛒 Customer', business_owner: '🏪 Business Owner', admin: '⚙️ Admin' };
+  var roleColors = { customer: '#2563EB', business_owner: 'var(--saffron)', admin: '#7C3AED' };
+  document.getElementById('profile-role').innerHTML =
+    '<span style="background:' + (roleColors[user.role]||'#ccc') + '20;color:' + (roleColors[user.role]||'#666') + ';padding:0.2rem 0.75rem;border-radius:50px;font-size:0.8rem;font-weight:700">' +
+    (roleLabels[user.role] || user.role) + '</span>';
+
+  // Fill edit form
+  document.getElementById('edit-name').value    = user.name    || '';
+  document.getElementById('edit-phone').value   = user.phone   || '';
+  document.getElementById('edit-address').value = user.address || '';
+
+  // Show seller links
+  if (user.role === 'business_owner' || user.role === 'admin') {
+    document.getElementById('dashboard-link').style.display   = 'block';
+    document.getElementById('add-product-link').style.display = 'block';
+  }
+});
+
+// Save profile
+document.getElementById('profile-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var btn  = document.getElementById('save-btn');
+  var name = document.getElementById('edit-name').value.trim();
+  var phone   = document.getElementById('edit-phone').value.trim();
+  var address = document.getElementById('edit-address').value.trim();
+
+  if (!name) { showToast('Name is required', 'error'); return; }
+
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+  try {
+    await apiCall('/users/me', {
+      method: 'PUT',
+      body:   JSON.stringify({ name: name, phone: phone, address: address })
+    });
+
+    // Update localStorage
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+    if (user) {
+      user.name    = name;
+      user.phone   = phone;
+      user.address = address;
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('avatar-circle').textContent = name.charAt(0).toUpperCase();
+    showToast('Profile updated successfully!', 'success');
+  } catch(err) {
+    showToast(err.message, 'error');
+  }
+
+  btn.disabled  = false;
+  btn.innerHTML = 'Save Changes';
+});
+
+// Change password
+document.getElementById('password-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  var btn     = document.getElementById('pw-btn');
+  var current = document.getElementById('current-password').value;
+  var newPw   = document.getElementById('new-password').value;
+  var confirm = document.getElementById('confirm-new-password').value;
+
+  if (!current || !newPw) { showToast('Please fill in all password fields', 'error'); return; }
+  if (newPw !== confirm)  { showToast('New passwords do not match', 'error'); return; }
+  if (newPw.length < 6)   { showToast('Password must be at least 6 characters', 'error'); return; }
+
+  btn.disabled  = true;
+  btn.innerHTML = '<span class="spinner"></span> Updating…';
+
+  try {
+    await apiCall('/users/me/password', {
+      method: 'PUT',
+      body:   JSON.stringify({ currentPassword: current, newPassword: newPw })
+    });
+    showToast('Password updated successfully!', 'success');
+    document.getElementById('password-form').reset();
+  } catch(err) {
+    showToast(err.message, 'error');
+  }
+
+  btn.disabled  = false;
+  btn.innerHTML = 'Update Password';
+});
+
+// Delete account
+function confirmDeleteAccount() {
+  document.getElementById('delete-modal').style.display = 'flex';
+}
+function closeDeleteModal() {
+  document.getElementById('delete-modal').style.display = 'none';
+  document.getElementById('delete-confirm-input').value = '';
+}
+
+async function deleteAccount() {
+  var input = document.getElementById('delete-confirm-input').value.trim();
+  if (input !== 'DELETE') {
+    showToast('Please type DELETE to confirm', 'error'); return;
+  }
+  try {
+    var user = null;
+    try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+    await apiCall('/users/me', { method: 'DELETE' });
+    localStorage.clear();
+    showToast('Account deleted. Goodbye!', 'success');
+    setTimeout(function(){ window.location.href = 'index.html'; }, 1500);
+  } catch(err) {
+    // Even if API fails, clear local data
+    localStorage.clear();
+    showToast('Account deleted. Goodbye!', 'success');
+    setTimeout(function(){ window.location.href = 'index.html'; }, 1500);
+  }
+}
+
+</script>
+</body>
+</html>

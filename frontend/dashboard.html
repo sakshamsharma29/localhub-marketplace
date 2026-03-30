@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Dashboard — LocalHub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/dark.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    .stat-card { background:var(--white,#fff); border:1px solid var(--border); border-radius:16px; padding:1.5rem; text-align:center; }
+    .stat-num  { font-size:2.5rem; font-weight:900; font-family:'Playfair Display',serif; color:var(--saffron); }
+    .stat-label{ color:var(--muted); font-size:0.88rem; margin-top:0.25rem; }
+    .prod-row  { display:flex; align-items:center; gap:1rem; padding:0.85rem 0; border-bottom:1px solid var(--border); }
+    .prod-row:last-child { border:none; }
+    .prod-thumb{ width:48px; height:48px; border-radius:8px; overflow:hidden; flex-shrink:0; background:var(--cream); }
+    .prod-thumb img { width:100%; height:100%; object-fit:cover; }
+    .notif-item{ display:flex; gap:1rem; align-items:flex-start; padding:0.85rem 1rem; border-bottom:1px solid var(--border); transition:background 0.2s; }
+    .notif-item:hover { background:var(--cream); }
+    .notif-item.unread { background:var(--saffron-pale); }
+    .notif-dot { width:10px; height:10px; border-radius:50%; background:var(--saffron); flex-shrink:0; margin-top:5px; }
+    .notif-dot.read { background:var(--border); }
+    .tab-bar   { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:2rem; }
+    .tab       { padding:0.75rem 1.5rem; font-weight:600; font-size:0.9rem; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; }
+    .tab.active{ color:var(--saffron); border-bottom-color:var(--saffron); }
+    .badge-notif { background:var(--saffron); color:#fff; border-radius:50%; width:20px; height:20px; font-size:0.7rem; font-weight:700; display:inline-flex; align-items:center; justify-content:center; margin-left:0.4rem; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><div class="navbar-inner"></div></div></nav>
+
+<div style="background:var(--white,#fff);border-bottom:1px solid var(--border);padding:0.75rem 0">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a><span>›</span><span>Dashboard</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding-top:2rem;padding-bottom:4rem">
+
+  <div id="auth-guard" style="display:none;text-align:center;padding:4rem">
+    <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
+    <h3>Please login to access dashboard</h3>
+    <a href="login.html?redirect=dashboard.html" class="btn btn-primary" style="margin-top:1rem">Login</a>
+  </div>
+
+  <div id="dash-content" style="display:none">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem">
+      <div>
+        <h1 id="welcome-msg" style="margin-bottom:0.25rem">My Dashboard</h1>
+        <p style="color:var(--muted)">Manage your businesses, products and orders</p>
+      </div>
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <a href="add-business.html" class="btn btn-ghost btn-sm">+ New Business</a>
+        <a href="add-product.html"  class="btn btn-primary btn-sm">+ Add Product</a>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <div class="tab active" onclick="switchTab('overview')">📊 Overview</div>
+      <div class="tab"        onclick="switchTab('products')">📦 Products</div>
+      <div class="tab"        onclick="switchTab('orders')">📋 Orders</div>
+      <div class="tab"        onclick="switchTab('notifications')">🔔 Notifications <span class="badge-notif" id="notif-badge" style="display:none">0</span></div>
+    </div>
+
+    <!-- ── OVERVIEW TAB ── -->
+    <div id="tab-overview">
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem">
+        <div class="stat-card">
+          <div class="stat-num" id="s-businesses">—</div>
+          <div class="stat-label">Businesses</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-products">—</div>
+          <div class="stat-label">Total Products</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-orders">—</div>
+          <div class="stat-label">Orders Received</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num" id="s-revenue">—</div>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem">
+        <div class="card" style="padding:1.5rem">
+          <h3 style="margin-bottom:1.25rem">📈 Orders This Week</h3>
+          <canvas id="orders-chart" height="200"></canvas>
+        </div>
+        <div class="card" style="padding:1.5rem">
+          <h3 style="margin-bottom:1.25rem">💰 Revenue by Business</h3>
+          <canvas id="revenue-chart" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Order status breakdown -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+        <div class="card" style="padding:1.5rem">
+          <h3 style="margin-bottom:1.25rem">📊 Order Status Breakdown</h3>
+          <canvas id="status-chart" height="200"></canvas>
+        </div>
+        <div class="card" style="padding:1.5rem">
+          <h3 style="margin-bottom:1rem">⚡ Quick Actions</h3>
+          <div style="display:flex;flex-direction:column;gap:0.75rem">
+            <a href="add-product.html"  class="btn btn-primary" style="text-align:center">📦 Add New Product</a>
+            <a href="add-business.html" class="btn btn-outline" style="text-align:center">🏪 Register New Business</a>
+            <a href="orders.html"       class="btn btn-ghost"   style="text-align:center">📋 View All Orders</a>
+            <a href="profile.html"      class="btn btn-ghost"   style="text-align:center">👤 Edit Profile</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PRODUCTS TAB ── -->
+    <div id="tab-products" style="display:none">
+      <div id="all-businesses-products"></div>
+    </div>
+
+    <!-- ── ORDERS TAB ── -->
+    <div id="tab-orders" style="display:none">
+      <div style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm active-filter" onclick="filterOrderTab('')">All</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterOrderTab('pending')">⏳ Pending</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterOrderTab('confirmed')">✅ Confirmed</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterOrderTab('preparing')">👨‍🍳 Preparing</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterOrderTab('out_for_delivery')">🚴 On the Way</button>
+        <button class="btn btn-ghost btn-sm" onclick="filterOrderTab('delivered')">🎉 Delivered</button>
+      </div>
+      <div id="dash-orders-list"></div>
+    </div>
+
+    <!-- ── NOTIFICATIONS TAB ── -->
+    <div id="tab-notifications" style="display:none">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h3>🔔 Notifications</h3>
+        <button onclick="markAllRead()" class="btn btn-ghost btn-sm">Mark all as read</button>
+      </div>
+      <div class="card" style="overflow:hidden">
+        <div id="notif-list"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Edit Product Modal -->
+<div id="edit-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;overflow-y:auto;padding:2rem 1rem">
+  <div style="background:var(--white,#fff);border-radius:20px;max-width:560px;margin:0 auto;overflow:hidden">
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <h3>✏️ Edit Product</h3>
+      <button onclick="closeEditModal()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--muted)">✕</button>
+    </div>
+    <div style="padding:1.5rem">
+      <input type="hidden" id="edit-prod-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Product Name</label>
+          <input type="text" id="edit-prod-name" class="form-control">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Category</label>
+          <input type="text" id="edit-prod-cat" class="form-control">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Price (₹)</label>
+          <input type="number" id="edit-prod-price" class="form-control" min="0" step="0.01">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Sale Price (₹)</label>
+          <input type="number" id="edit-prod-sale" class="form-control" min="0" step="0.01" placeholder="Optional">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Stock</label>
+          <input type="number" id="edit-prod-stock" class="form-control" min="0">
+        </div>
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Description</label>
+        <textarea id="edit-prod-desc" class="form-control" rows="3"></textarea>
+      </div>
+      <div style="margin-bottom:1.25rem">
+        <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Image URL</label>
+        <input type="url" id="edit-prod-image" class="form-control" placeholder="https://...">
+      </div>
+      <div style="display:flex;gap:0.75rem">
+        <button onclick="saveProduct()" class="btn btn-primary" style="flex:1">Save Changes</button>
+        <button onclick="closeEditModal()" class="btn btn-ghost" style="flex:1">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer style="background:var(--dark);padding:2rem 0;text-align:center;color:#9CA3AF;font-size:0.88rem">
+  <div class="container">© 2024 LocalHub</div>
+</footer>
+
+<div id="toast-container"></div>
+<script src="js/main.js"></script>
+<script>
+
+var myBusinesses  = [];
+var allSellerOrders = [];
+var notifications = [];
+var currentOrderFilter = '';
+
+window.addEventListener('load', async function() {
+  var token = localStorage.getItem('token');
+  var user  = null;
+  try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+
+  if (!token || !user) { document.getElementById('auth-guard').style.display = 'block'; return; }
+  document.getElementById('dash-content').style.display = 'block';
+  document.getElementById('welcome-msg').textContent = 'Welcome back, ' + user.name + ' 👋';
+
+  await loadDashboardData();
+  generateNotifications();
+});
+
+async function loadDashboardData() {
+  try {
+    myBusinesses = await apiCall('/businesses/my');
+    document.getElementById('s-businesses').textContent = myBusinesses.length;
+
+    var totalProds = 0;
+    var totalRevenue = 0;
+    allSellerOrders = [];
+
+    for (var i = 0; i < myBusinesses.length; i++) {
+      try {
+        var prods = await apiCall('/products?businessId=' + myBusinesses[i].id + '&limit=100');
+        myBusinesses[i].products = prods;
+        totalProds += prods.length;
+      } catch(e) { myBusinesses[i].products = []; }
+
+      try {
+        var orders = await apiCall('/orders/business/' + myBusinesses[i].id);
+        myBusinesses[i].orders = orders;
+        allSellerOrders = allSellerOrders.concat(orders);
+        orders.forEach(function(o){ totalRevenue += parseFloat(o.total_amount || 0); });
+      } catch(e) { myBusinesses[i].orders = []; }
+    }
+
+    document.getElementById('s-products').textContent = totalProds;
+    document.getElementById('s-orders').textContent   = allSellerOrders.length;
+    document.getElementById('s-revenue').textContent  = '₹' + totalRevenue.toFixed(0);
+
+    renderCharts();
+    renderProductsTab();
+    renderOrdersTab();
+
+  } catch(e) { console.error(e); }
+}
+
+// ── CHARTS ────────────────────────────────────────
+function renderCharts() {
+  // Orders this week
+  var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var ordersByDay = [0,0,0,0,0,0,0];
+  allSellerOrders.forEach(function(o) {
+    var d = new Date(o.created_at).getDay();
+    var idx = d === 0 ? 6 : d - 1;
+    ordersByDay[idx]++;
+  });
+
+  new Chart(document.getElementById('orders-chart'), {
+    type: 'bar',
+    data: {
+      labels: days,
+      datasets: [{ label: 'Orders', data: ordersByDay, backgroundColor: 'rgba(255,107,43,0.8)', borderRadius: 6 }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+  });
+
+  // Revenue by business
+  var bizNames    = myBusinesses.map(function(b){ return b.name.split(' ')[0]; });
+  var bizRevenues = myBusinesses.map(function(b){
+    var rev = 0;
+    (b.orders||[]).forEach(function(o){ rev += parseFloat(o.total_amount||0); });
+    return rev.toFixed(0);
+  });
+  var colors = ['rgba(255,107,43,0.8)','rgba(15,107,79,0.8)','rgba(37,99,235,0.8)','rgba(124,58,237,0.8)','rgba(217,119,6,0.8)'];
+
+  new Chart(document.getElementById('revenue-chart'), {
+    type: 'doughnut',
+    data: {
+      labels: bizNames,
+      datasets: [{ data: bizRevenues, backgroundColor: colors, borderWidth: 2 }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+  });
+
+  // Order status breakdown
+  var statusCounts = { pending:0, confirmed:0, preparing:0, out_for_delivery:0, delivered:0, cancelled:0 };
+  allSellerOrders.forEach(function(o){ if(statusCounts[o.status] !== undefined) statusCounts[o.status]++; });
+
+  new Chart(document.getElementById('status-chart'), {
+    type: 'bar',
+    data: {
+      labels: ['Pending','Confirmed','Preparing','On Way','Delivered','Cancelled'],
+      datasets: [{
+        data: Object.values(statusCounts),
+        backgroundColor: ['#FEF3C7','#DBEAFE','#EDE9FE','#CFFAFE','#D1FAE5','#FEE2E2'],
+        borderColor:     ['#D97706','#2563EB','#7C3AED','#0891B2','#059669','#DC2626'],
+        borderWidth: 2, borderRadius: 6
+      }]
+    },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+  });
+}
+
+// ── PRODUCTS TAB ──────────────────────────────────
+function renderProductsTab() {
+  var wrap = document.getElementById('all-businesses-products');
+  if (!myBusinesses.length) {
+    wrap.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted)"><h3>No businesses yet</h3><a href="add-business.html" class="btn btn-primary" style="margin-top:1rem">List Your Business</a></div>';
+    return;
+  }
+  var html = '';
+  myBusinesses.forEach(function(b) {
+    html +=
+      '<div class="card" style="margin-bottom:1.5rem;overflow:hidden">' +
+        '<div style="padding:1rem 1.5rem;background:var(--cream);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">' +
+          '<div><strong>' + b.name + '</strong> <span style="color:var(--muted);font-size:0.82rem">(' + (b.products||[]).length + ' products)</span></div>' +
+          '<a href="add-product.html?business=' + b.id + '" class="btn btn-primary btn-sm">+ Add Product</a>' +
+        '</div>' +
+        '<div style="padding:1rem">';
+
+    if (!b.products || !b.products.length) {
+      html += '<div style="text-align:center;padding:2rem;color:var(--muted)">No products yet. <a href="add-product.html?business=' + b.id + '" style="color:var(--saffron);font-weight:600">Add your first product →</a></div>';
+    } else {
+      b.products.forEach(function(p) {
+        html +=
+          '<div class="prod-row">' +
+            '<div class="prod-thumb"><img src="' + (p.image||'') + '" alt="' + p.name + '" onerror="this.style.display=\'none\'"></div>' +
+            '<div style="flex:1">' +
+              '<div style="font-weight:600">' + p.name + '</div>' +
+              '<div style="font-size:0.78rem;color:var(--muted)">' + (p.category||'') + ' · ' + (p.unit||'pc') + '</div>' +
+            '</div>' +
+            '<div style="text-align:right;margin-right:1rem">' +
+              '<div style="font-weight:700;color:var(--saffron)">₹' + parseFloat(p.sale_price||p.price).toFixed(0) + '</div>' +
+              '<div style="font-size:0.75rem;color:' + (p.stock > 0 ? '#059669' : '#DC2626') + ';font-weight:600">' + (p.stock > 0 ? 'Stock: ' + p.stock : 'Out of stock') + '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:0.5rem">' +
+              '<button onclick="openEditModal(' + JSON.stringify(p).replace(/"/g,'&quot;') + ')" class="btn btn-ghost btn-sm">✏️ Edit</button>' +
+              '<button onclick="deleteProduct(' + p.id + ', \'' + p.name.replace(/'/g,"\\'") + '\')" class="btn btn-sm" style="background:#FEE2E2;color:#DC2626;border:none;border-radius:8px;padding:0.45rem 0.75rem;font-weight:600;cursor:pointer">🗑</button>' +
+            '</div>' +
+          '</div>';
+      });
+    }
+    html += '</div></div>';
+  });
+  wrap.innerHTML = html;
+}
+
+// ── ORDERS TAB ───────────────────────────────────
+function renderOrdersTab() {
+  var list = document.getElementById('dash-orders-list');
+  var orders = currentOrderFilter
+    ? allSellerOrders.filter(function(o){ return o.status === currentOrderFilter; })
+    : allSellerOrders;
+
+  if (!orders.length) {
+    list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted)"><h3>No orders found</h3></div>';
+    return;
+  }
+
+  var statusColors = { pending:'#FEF3C7', confirmed:'#DBEAFE', preparing:'#EDE9FE', out_for_delivery:'#CFFAFE', delivered:'#D1FAE5', cancelled:'#FEE2E2' };
+  var statusText   = { pending:'#D97706', confirmed:'#2563EB', preparing:'#7C3AED', out_for_delivery:'#0891B2', delivered:'#059669', cancelled:'#DC2626' };
+  var statusIcons  = { pending:'⏳', confirmed:'✅', preparing:'👨‍🍳', out_for_delivery:'🚴', delivered:'🎉', cancelled:'❌' };
+
+  var html = '';
+  orders.forEach(function(o) {
+    html +=
+      '<div class="card" style="margin-bottom:1rem;overflow:hidden">' +
+        '<div style="padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;border-bottom:1px solid var(--border)">' +
+          '<div>' +
+            '<div style="font-weight:700">Order #' + o.id + ' — ' + (o.customer_name||'Customer') + '</div>' +
+            '<div style="font-size:0.8rem;color:var(--muted)">' + new Date(o.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) + '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:1rem">' +
+            '<span style="background:' + (statusColors[o.status]||'#f3f4f6') + ';color:' + (statusText[o.status]||'#666') + ';padding:0.3rem 0.85rem;border-radius:50px;font-size:0.78rem;font-weight:700">' + (statusIcons[o.status]||'') + ' ' + o.status + '</span>' +
+            '<span style="font-weight:700;color:var(--saffron)">₹' + parseFloat(o.total_amount).toFixed(2) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div style="padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem">' +
+          '<div style="font-size:0.85rem;color:var(--muted)">📍 ' + (o.delivery_address||'').split('\n')[0] + ' &nbsp;·&nbsp; 💳 ' + (o.payment_method||'cod').toUpperCase() + '</div>' +
+          (o.status !== 'delivered' && o.status !== 'cancelled'
+            ? '<select onchange="updateStatus(' + o.id + ', this.value)" style="padding:0.4rem 0.75rem;border:1.5px solid var(--border);border-radius:8px;font-size:0.82rem;cursor:pointer;font-family:inherit">' +
+                '<option value="">Update Status…</option>' +
+                (o.status==='pending'          ? '<option value="confirmed">✅ Confirm</option>' : '') +
+                (o.status==='confirmed'        ? '<option value="preparing">👨‍🍳 Preparing</option>' : '') +
+                (o.status==='preparing'        ? '<option value="out_for_delivery">🚴 Out for Delivery</option>' : '') +
+                (o.status==='out_for_delivery' ? '<option value="delivered">🎉 Mark Delivered</option>' : '') +
+                '<option value="cancelled">❌ Cancel</option>' +
+              '</select>'
+            : '<span style="font-size:0.85rem;font-weight:600;color:' + (statusText[o.status]||'#666') + '">' + (statusIcons[o.status]||'') + ' ' + o.status.charAt(0).toUpperCase() + o.status.slice(1) + '</span>'
+          ) +
+        '</div>' +
+      '</div>';
+  });
+  list.innerHTML = html;
+}
+
+function filterOrderTab(status) {
+  currentOrderFilter = status;
+  document.querySelectorAll('#tab-orders .btn').forEach(function(b){
+    b.style.background = b.textContent.toLowerCase().includes(status) || (status==='' && b.textContent==='All') ? 'var(--saffron)' : '';
+    b.style.color      = b.textContent.toLowerCase().includes(status) || (status==='' && b.textContent==='All') ? '#fff' : '';
+  });
+  renderOrdersTab();
+}
+
+async function updateStatus(orderId, status) {
+  if (!status) return;
+  try {
+    await apiCall('/orders/' + orderId + '/status', { method:'PATCH', body: JSON.stringify({ status: status }) });
+    showToast('Order status updated!', 'success');
+    addNotification('Order #' + orderId + ' status changed to ' + status, 'order');
+    await loadDashboardData();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────
+function generateNotifications() {
+  var stored = [];
+  try { stored = JSON.parse(localStorage.getItem('notifications')) || []; } catch(e) {}
+
+  // Generate from recent orders
+  allSellerOrders.slice(0, 5).forEach(function(o, i) {
+    var exists = stored.some(function(n){ return n.orderId === o.id && n.type === 'new_order'; });
+    if (!exists) {
+      stored.unshift({
+        id:      Date.now() + i,
+        orderId: o.id,
+        type:    'new_order',
+        message: '🛒 New order #' + o.id + ' received — ₹' + parseFloat(o.total_amount).toFixed(2),
+        time:    o.created_at,
+        read:    false
+      });
+    }
+  });
+
+  notifications = stored.slice(0, 20);
+  localStorage.setItem('notifications', JSON.stringify(notifications));
+
+  var unread = notifications.filter(function(n){ return !n.read; }).length;
+  var badge  = document.getElementById('notif-badge');
+  if (unread > 0) { badge.style.display = 'inline-flex'; badge.textContent = unread; }
+  else { badge.style.display = 'none'; }
+
+  renderNotifications();
+}
+
+function addNotification(message, type) {
+  var stored = [];
+  try { stored = JSON.parse(localStorage.getItem('notifications')) || []; } catch(e) {}
+  stored.unshift({ id: Date.now(), type: type, message: '🔔 ' + message, time: new Date().toISOString(), read: false });
+  localStorage.setItem('notifications', JSON.stringify(stored.slice(0, 20)));
+  generateNotifications();
+}
+
+function renderNotifications() {
+  var list = document.getElementById('notif-list');
+  if (!notifications.length) {
+    list.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--muted)"><div style="font-size:3rem;margin-bottom:1rem">🔔</div><p>No notifications yet</p></div>';
+    return;
+  }
+  list.innerHTML = notifications.map(function(n) {
+    return '<div class="notif-item ' + (n.read ? '' : 'unread') + '" onclick="markRead(' + n.id + ')">' +
+      '<div class="notif-dot ' + (n.read ? 'read' : '') + '"></div>' +
+      '<div style="flex:1">' +
+        '<div style="font-size:0.9rem;font-weight:' + (n.read ? '400' : '600') + '">' + n.message + '</div>' +
+        '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem">' + new Date(n.time).toLocaleDateString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function markRead(id) {
+  notifications.forEach(function(n){ if(n.id === id) n.read = true; });
+  localStorage.setItem('notifications', JSON.stringify(notifications));
+  generateNotifications();
+}
+
+function markAllRead() {
+  notifications.forEach(function(n){ n.read = true; });
+  localStorage.setItem('notifications', JSON.stringify(notifications));
+  generateNotifications();
+  showToast('All notifications marked as read', 'success');
+}
+
+// ── EDIT PRODUCT ──────────────────────────────────
+function openEditModal(product) {
+  document.getElementById('edit-prod-id').value    = product.id;
+  document.getElementById('edit-prod-name').value  = product.name;
+  document.getElementById('edit-prod-cat').value   = product.category || '';
+  document.getElementById('edit-prod-price').value = product.price;
+  document.getElementById('edit-prod-sale').value  = product.sale_price || '';
+  document.getElementById('edit-prod-stock').value = product.stock;
+  document.getElementById('edit-prod-desc').value  = product.description || '';
+  document.getElementById('edit-prod-image').value = product.image || '';
+  document.getElementById('edit-modal').style.display = 'flex';
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').style.display = 'none';
+}
+
+async function saveProduct() {
+  var id    = document.getElementById('edit-prod-id').value;
+  var name  = document.getElementById('edit-prod-name').value.trim();
+  var price = parseFloat(document.getElementById('edit-prod-price').value);
+  var sale  = parseFloat(document.getElementById('edit-prod-sale').value) || null;
+  var stock = parseInt(document.getElementById('edit-prod-stock').value);
+
+  if (!name || !price) { showToast('Name and price are required', 'error'); return; }
+
+  try {
+    await apiCall('/products/' + id, {
+      method: 'PUT',
+      body: JSON.stringify({
+        name:        name,
+        category:    document.getElementById('edit-prod-cat').value,
+        price:       price,
+        sale_price:  sale,
+        stock:       stock,
+        description: document.getElementById('edit-prod-desc').value,
+        image:       document.getElementById('edit-prod-image').value,
+        is_active:   true
+      })
+    });
+    showToast('Product updated!', 'success');
+    closeEditModal();
+    await loadDashboardData();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+async function deleteProduct(id, name) {
+  if (!confirm('Delete "' + name + '"? This cannot be undone.')) return;
+  try {
+    await apiCall('/products/' + id, { method: 'DELETE' });
+    showToast(name + ' deleted', 'success');
+    await loadDashboardData();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ── TABS ──────────────────────────────────────────
+function switchTab(tab) {
+  ['overview','products','orders','notifications'].forEach(function(t) {
+    document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach(function(t, i) {
+    var tabs = ['overview','products','orders','notifications'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+}
+
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeEditModal();
+});
+
+</script>
+</body>
+</html>
