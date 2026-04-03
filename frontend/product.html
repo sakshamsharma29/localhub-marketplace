@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Profile — LocalHub</title>
+  <title>Products — LocalHub</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/dark.css">
 </head>
@@ -14,108 +14,78 @@
 <div style="background:#fff;border-bottom:1px solid var(--border);padding:0.75rem 0">
   <div class="container">
     <div class="breadcrumb">
-      <a href="index.html">Home</a><span>›</span><span>My Profile</span>
+      <a href="index.html">Home</a><span>›</span>
+      <a href="business-list.html">Businesses</a><span>›</span>
+      <span id="breadcrumb-title">Loading…</span>
     </div>
   </div>
 </div>
 
-<div class="container" style="padding-top:2rem;padding-bottom:4rem;max-width:700px">
-
-  <div id="auth-guard" style="display:none;text-align:center;padding:4rem">
-    <div style="font-size:3rem;margin-bottom:1rem">🔐</div>
-    <h3>Please login to view your profile</h3>
-    <a href="login.html?redirect=profile.html" class="btn btn-primary" style="margin-top:1rem">Login</a>
-  </div>
-
-  <div id="profile-content" style="display:none">
-    <h1 style="margin-bottom:2rem">👤 My Profile</h1>
-
-    <!-- Profile Card -->
-    <div class="card" style="padding:2rem;margin-bottom:1.5rem">
-      <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem;flex-wrap:wrap">
-        <div id="avatar-circle" style="width:80px;height:80px;border-radius:50%;background:var(--saffron);display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;font-weight:700;flex-shrink:0">?</div>
-        <div>
-          <h2 id="profile-name" style="margin-bottom:0.25rem"></h2>
-          <div id="profile-email" style="color:var(--muted);font-size:0.9rem"></div>
-          <div id="profile-role"  style="margin-top:0.4rem"></div>
+<!-- Business Banner -->
+<div id="business-banner" style="display:none">
+  <div style="height:240px;overflow:hidden;position:relative;background:#1a1a1a">
+    <img id="biz-banner-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0.6">
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85),transparent 60%);display:flex;align-items:flex-end">
+      <div class="container" style="padding-bottom:1.5rem">
+        <h1 id="biz-name" style="color:#fff;margin-bottom:0.4rem"></h1>
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.88rem">
+          <span id="biz-cat"    style="background:var(--saffron);color:#fff;padding:0.2rem 0.7rem;border-radius:4px;font-size:0.75rem;font-weight:700"></span>
+          <span id="biz-city"   style="color:#D1D5DB"></span>
+          <span id="biz-rating" style="color:#F59E0B"></span>
+          <span id="biz-phone"  style="color:#D1D5DB"></span>
         </div>
       </div>
-
-      <form id="profile-form">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
-          <div class="form-group">
-            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Full Name</label>
-            <input type="text" id="edit-name" class="form-control" placeholder="Your full name">
-          </div>
-          <div class="form-group">
-            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Phone Number</label>
-            <input type="tel" id="edit-phone" class="form-control" placeholder="10-digit mobile">
-          </div>
-        </div>
-        <div class="form-group" style="margin-bottom:1.25rem">
-          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Address</label>
-          <textarea id="edit-address" class="form-control" rows="2" placeholder="Your address"></textarea>
-        </div>
-        <button type="submit" id="save-btn" class="btn btn-primary">Save Changes</button>
-      </form>
     </div>
-
-    <!-- Change Password -->
-    <div class="card" style="padding:2rem;margin-bottom:1.5rem">
-      <h3 style="margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">🔒 Change Password</h3>
-      <form id="password-form">
-        <div class="form-group" style="margin-bottom:1rem">
-          <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Current Password</label>
-          <input type="password" id="current-password" class="form-control" placeholder="Enter current password">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem">
-          <div class="form-group">
-            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">New Password</label>
-            <input type="password" id="new-password" class="form-control" placeholder="Min. 6 characters">
-          </div>
-          <div class="form-group">
-            <label style="display:block;font-weight:600;font-size:0.85rem;margin-bottom:0.4rem">Confirm New Password</label>
-            <input type="password" id="confirm-new-password" class="form-control" placeholder="Re-enter new password">
-          </div>
-        </div>
-        <button type="submit" id="pw-btn" class="btn btn-outline">Update Password</button>
-      </form>
-    </div>
-
-    <!-- Quick Links -->
-    <div class="card" style="padding:2rem;margin-bottom:1.5rem">
-      <h3 style="margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border)">🔗 Quick Links</h3>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
-        <a href="orders.html"   class="btn btn-ghost" style="text-align:center">📋 My Orders</a>
-        <a href="wishlist.html" class="btn btn-ghost" style="text-align:center">❤️ My Wishlist</a>
-        <a href="dashboard.html" class="btn btn-ghost" style="text-align:center" id="dashboard-link" style="display:none">🏪 My Dashboard</a>
-        <a href="add-product.html" class="btn btn-ghost" style="text-align:center" id="add-product-link" style="display:none">📦 Add Product</a>
-      </div>
-    </div>
-
-    <!-- Danger Zone -->
-    <div class="card" style="padding:2rem;border:1.5px solid #FEE2E2">
-      <h3 style="margin-bottom:0.5rem;color:#DC2626">⚠️ Danger Zone</h3>
-      <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.25rem">Once you delete your account, there is no going back. All your data will be permanently removed.</p>
-      <button onclick="confirmDeleteAccount()" class="btn" style="background:#FEE2E2;color:#DC2626;border:1.5px solid #DC2626;border-radius:8px;padding:0.6rem 1.5rem;font-weight:600;cursor:pointer">
-        🗑 Delete My Account
-      </button>
-    </div>
-
   </div>
 </div>
 
-<!-- Delete Confirm Modal -->
-<div id="delete-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;display:none;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:20px;max-width:420px;width:90%;padding:2.5rem;text-align:center">
-    <div style="font-size:3rem;margin-bottom:1rem">⚠️</div>
-    <h3 style="margin-bottom:0.5rem;color:#DC2626">Delete Account?</h3>
-    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem">This will permanently delete your account and all your data. This cannot be undone.</p>
-    <p style="margin-bottom:1.5rem;font-size:0.88rem">Type <strong>DELETE</strong> to confirm:</p>
-    <input type="text" id="delete-confirm-input" class="form-control" placeholder="Type DELETE here" style="text-align:center;margin-bottom:1.25rem">
-    <div style="display:flex;gap:0.75rem">
-      <button onclick="closeDeleteModal()" class="btn btn-ghost" style="flex:1">Cancel</button>
-      <button onclick="deleteAccount()" class="btn" style="flex:1;background:#DC2626;color:#fff;border:none;border-radius:8px;padding:0.7rem;font-weight:600;cursor:pointer">Delete Forever</button>
+<!-- Single Product View -->
+<div id="single-view" style="display:none" class="container">
+  <div style="padding:2rem 0;display:grid;grid-template-columns:1fr 1fr;gap:3rem">
+    <img id="prod-img" src="" alt="" style="width:100%;height:400px;object-fit:cover;border-radius:16px">
+    <div>
+      <span id="prod-cat" style="background:var(--saffron-pale);color:var(--saffron);padding:0.2rem 0.7rem;border-radius:50px;font-size:0.78rem;font-weight:700"></span>
+      <h1 id="prod-name" style="margin:0.75rem 0 0.5rem"></h1>
+      <div style="display:flex;align-items:baseline;gap:0.75rem;margin-bottom:0.75rem">
+        <span id="prod-price" style="font-size:2rem;font-weight:700;color:var(--saffron)"></span>
+        <span id="prod-old"   style="text-decoration:line-through;color:var(--muted)"></span>
+        <span id="prod-unit"  style="color:var(--muted);font-size:0.9rem"></span>
+      </div>
+      <div id="prod-biz"   style="font-size:0.88rem;margin-bottom:0.75rem"></div>
+      <p   id="prod-desc"  style="color:var(--muted);line-height:1.8;margin-bottom:1.25rem"></p>
+      <div id="prod-stock" style="margin-bottom:1.25rem;font-weight:600"></div>
+      <div style="display:flex;align-items:center;gap:1rem">
+        <div style="display:flex;border:1.5px solid var(--border);border-radius:8px;overflow:hidden">
+          <button onclick="changeQty(-1)" style="padding:0.6rem 1rem;background:var(--cream);border:none;font-size:1.1rem;cursor:pointer">−</button>
+          <span id="qty-val" style="padding:0.6rem 1.2rem;font-weight:700;min-width:50px;text-align:center">1</span>
+          <button onclick="changeQty(1)"  style="padding:0.6rem 1rem;background:var(--cream);border:none;font-size:1.1rem;cursor:pointer">+</button>
+        </div>
+        <button id="atc-btn" onclick="addFromDetail()" class="btn btn-primary" style="flex:1">🛒 Add to Cart</button>
+      </div>
+      <div style="margin-top:1.5rem">
+        <a id="back-btn" href="business-list.html" class="btn btn-ghost">← Back to Shop</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Products Grid View -->
+<div id="grid-view" style="display:none">
+  <div class="container" style="padding-top:2rem;padding-bottom:3rem">
+    <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap">
+      <input type="text" id="prod-search" class="form-control" placeholder="Search products…" style="max-width:260px" oninput="filterProds()">
+      <select id="prod-cat-filter" class="form-control" style="width:auto" onchange="filterProds()">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+      <h2 id="grid-title" style="font-family:'Playfair Display',serif;font-size:1.8rem"></h2>
+      <span id="prod-count" style="color:var(--muted);font-size:0.9rem"></span>
+    </div>
+    <div id="products-grid" class="grid-4">
+      <div style="grid-column:1/-1;text-align:center;padding:3rem">
+        <div class="spinner" style="width:36px;height:36px;border-color:var(--border);border-top-color:var(--saffron);margin:0 auto"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -128,142 +98,173 @@
 <script src="js/main.js"></script>
 <script>
 
-window.addEventListener('load', async function() {
-  var token = localStorage.getItem('token');
-  var user  = null;
-  try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
+var qty          = 1;
+var currentProd  = null;
+var allProds     = [];
 
-  if (!token || !user) {
-    document.getElementById('auth-guard').style.display = 'block';
+var urlP   = new URLSearchParams(window.location.search);
+var pid    = urlP.get('id');
+var bid    = urlP.get('business');
+
+window.addEventListener('load', function() {
+  if (pid)      { showSingleProduct(pid); }
+  else if (bid) { showBusinessProducts(bid); }
+  else          { window.location.href = 'business-list.html'; }
+});
+
+/* ── Single Product ── */
+async function showSingleProduct(id) {
+  document.getElementById('single-view').style.display = 'block';
+  try {
+    var prod = await apiCall('/products/' + id);
+    currentProd = prod;
+    document.title = prod.name + ' — LocalHub';
+    document.getElementById('breadcrumb-title').textContent = prod.name;
+    var imgEl = document.getElementById('prod-img');
+    imgEl.src = prod.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80';
+    imgEl.onerror = function(){ this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80'; };
+    document.getElementById('prod-cat').textContent   = prod.category || 'Product';
+    document.getElementById('prod-name').textContent  = prod.name;
+    document.getElementById('prod-price').textContent = '₹' + parseFloat(prod.sale_price || prod.price).toFixed(2);
+    document.getElementById('prod-unit').textContent  = 'per ' + (prod.unit || 'piece');
+    document.getElementById('prod-desc').textContent  = prod.description || 'Fresh local product.';
+    if (prod.sale_price) document.getElementById('prod-old').textContent = '₹' + parseFloat(prod.price).toFixed(2);
+    document.getElementById('prod-biz').innerHTML = '🏪 <a href="product.html?business=' + prod.business_id + '" style="color:var(--saffron);font-weight:600">' + prod.business_name + '</a> · 📍 ' + prod.city;
+    document.getElementById('back-btn').href = 'product.html?business=' + prod.business_id;
+    if (prod.stock <= 0) {
+      document.getElementById('prod-stock').innerHTML = '<span style="color:#DC2626">⚠ Out of Stock</span>';
+      document.getElementById('atc-btn').disabled = true;
+    } else if (prod.stock < 10) {
+      document.getElementById('prod-stock').innerHTML = '<span style="color:#D97706">⚡ Only ' + prod.stock + ' left!</span>';
+    } else {
+      document.getElementById('prod-stock').innerHTML = '<span style="color:#0F6B4F">✓ In Stock</span>';
+    }
+  } catch(e) {
+    console.error(e);
+    document.getElementById('single-view').innerHTML = '<div style="text-align:center;padding:4rem"><h3>Product not found</h3><a href="business-list.html" class="btn btn-primary" style="margin-top:1rem">Browse Businesses</a></div>';
+  }
+}
+
+function changeQty(d) {
+  qty = Math.max(1, qty + d);
+  document.getElementById('qty-val').textContent = qty;
+}
+
+function addFromDetail() {
+  if (!currentProd) return;
+  addToCart(currentProd, qty);
+}
+
+/* ── Business Products ── */
+async function showBusinessProducts(bizId) {
+  document.getElementById('business-banner').style.display = 'block';
+  document.getElementById('grid-view').style.display       = 'block';
+  try {
+    var biz   = await apiCall('/businesses/' + bizId);
+    var prods = await apiCall('/products?businessId=' + bizId + '&limit=50');
+
+    document.title = biz.name + ' — LocalHub';
+    document.getElementById('breadcrumb-title').textContent = biz.name;
+    document.getElementById('grid-title').textContent       = biz.name;
+
+    var fallback  = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=1200&q=80';
+    var bannerEl  = document.getElementById('biz-banner-img');
+    bannerEl.src  = biz.banner || fallback;
+    bannerEl.onerror = function(){ this.src = fallback; };
+
+    document.getElementById('biz-name').textContent   = biz.name;
+    document.getElementById('biz-cat').textContent    = biz.category || 'Local Shop';
+    document.getElementById('biz-city').textContent   = '📍 ' + biz.city;
+    document.getElementById('biz-rating').textContent = '⭐ ' + (biz.rating ? Number(biz.rating).toFixed(1) : '4.5') + ' (' + (biz.total_reviews||0) + ' reviews)';
+    document.getElementById('biz-phone').textContent  = biz.phone ? '📞 ' + biz.phone : '';
+
+    allProds = prods;
+
+    // Category filter
+    var cats = [];
+    prods.forEach(function(p){ if(p.category && cats.indexOf(p.category)===-1) cats.push(p.category); });
+    var catSel = document.getElementById('prod-cat-filter');
+    cats.forEach(function(c){ catSel.innerHTML += '<option value="'+c+'">'+c+'</option>'; });
+
+    renderProds(prods);
+  } catch(e) {
+    console.error('Error:', e);
+    document.getElementById('products-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted)"><p>Could not load. Error: ' + e.message + '</p><a href="business-list.html" class="btn btn-ghost" style="margin-top:1rem">← Back</a></div>';
+  }
+}
+
+function filterProds() {
+  var q   = document.getElementById('prod-search').value.toLowerCase();
+  var cat = document.getElementById('prod-cat-filter').value;
+  var filtered = allProds.filter(function(p){
+    return (!q || p.name.toLowerCase().indexOf(q) !== -1) && (!cat || p.category === cat);
+  });
+  renderProds(filtered);
+}
+
+function renderProds(prods) {
+  document.getElementById('prod-count').textContent = prods.length + ' products';
+  if (!prods.length) {
+    document.getElementById('products-grid').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--muted)"><h3>No products found</h3></div>';
     return;
   }
 
-  document.getElementById('profile-content').style.display = 'block';
+  var grid = document.getElementById('products-grid');
+  grid.innerHTML = '';
 
-  // Fill avatar
-  document.getElementById('avatar-circle').textContent = user.name ? user.name.charAt(0).toUpperCase() : '?';
+  prods.forEach(function(p) {
+    var price   = p.sale_price || p.price;
+    var imgSrc  = p.image || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80';
+    var inStock = p.stock > 0;
 
-  // Fill profile info
-  document.getElementById('profile-name').textContent  = user.name  || '';
-  document.getElementById('profile-email').textContent = '✉️ ' + (user.email || '');
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = 'overflow:hidden;transition:all 0.25s ease;cursor:default';
 
-  var roleLabels = { customer: '🛒 Customer', business_owner: '🏪 Business Owner', admin: '⚙️ Admin' };
-  var roleColors = { customer: '#2563EB', business_owner: 'var(--saffron)', admin: '#7C3AED' };
-  document.getElementById('profile-role').innerHTML =
-    '<span style="background:' + (roleColors[user.role]||'#ccc') + '20;color:' + (roleColors[user.role]||'#666') + ';padding:0.2rem 0.75rem;border-radius:50px;font-size:0.8rem;font-weight:700">' +
-    (roleLabels[user.role] || user.role) + '</span>';
+    card.innerHTML =
+      '<div style="position:relative;height:190px;overflow:hidden;background:var(--cream)">' +
+        '<img src="' + imgSrc + '" alt="' + p.name + '" style="width:100%;height:100%;object-fit:cover" onerror="this.src=\'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80\'">' +
+        (p.sale_price ? '<div style="position:absolute;top:0.6rem;left:0.6rem;background:var(--saffron);color:#fff;font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px">SALE</div>' : '') +
+        (!inStock ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">Out of Stock</div>' : '') +
+      '</div>' +
+      '<div style="padding:1rem">' +
+        '<div style="font-weight:700;margin-bottom:0.25rem">' + p.name + '</div>' +
+        '<div style="font-size:0.78rem;color:var(--muted);margin-bottom:0.5rem;line-height:1.4">' + (p.description ? p.description.slice(0,65)+'…' : '') + '</div>' +
+        '<div style="display:flex;align-items:baseline;gap:0.5rem;margin-bottom:0.25rem">' +
+          '<span style="font-size:1.1rem;font-weight:700">₹' + parseFloat(price).toFixed(2) + '</span>' +
+          (p.sale_price ? '<span style="font-size:0.82rem;color:var(--muted);text-decoration:line-through">₹' + parseFloat(p.price).toFixed(2) + '</span>' : '') +
+          '<span style="font-size:0.78rem;color:var(--muted)">/ ' + (p.unit||'pc') + '</span>' +
+        '</div>' +
+        (inStock && p.stock <= 10 ? '<div style="font-size:0.75rem;color:#D97706;font-weight:600;margin-bottom:0.4rem">⚡ Only ' + p.stock + ' left</div>' : '') +
+        (inStock && p.stock > 10  ? '<div style="font-size:0.75rem;color:#0F6B4F;margin-bottom:0.4rem">✓ In stock</div>' : '') +
+        '<div style="display:flex;gap:0.5rem;margin-top:0.6rem">' +
+          '<a href="product.html?id=' + p.id + '" class="btn btn-ghost btn-sm" style="flex:1;text-align:center">Details</a>' +
+          '<button class="wish-btn btn btn-ghost btn-sm" data-id="' + p.id + '" style="padding:0.45rem 0.65rem">🤍</button>' +
+          '<button class="btn btn-primary btn-sm add-btn" style="flex:1" data-id="' + p.id + '" ' + (!inStock ? 'disabled' : '') + '>🛒 Add</button>' +
+        '</div>' +
+      '</div>';
 
-  // Fill edit form
-  document.getElementById('edit-name').value    = user.name    || '';
-  document.getElementById('edit-phone').value   = user.phone   || '';
-  document.getElementById('edit-address').value = user.address || '';
-
-  // Show seller links
-  if (user.role === 'business_owner' || user.role === 'admin') {
-    document.getElementById('dashboard-link').style.display   = 'block';
-    document.getElementById('add-product-link').style.display = 'block';
-  }
-});
-
-// Save profile
-document.getElementById('profile-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  var btn  = document.getElementById('save-btn');
-  var name = document.getElementById('edit-name').value.trim();
-  var phone   = document.getElementById('edit-phone').value.trim();
-  var address = document.getElementById('edit-address').value.trim();
-
-  if (!name) { showToast('Name is required', 'error'); return; }
-
-  btn.disabled  = true;
-  btn.innerHTML = '<span class="spinner"></span> Saving…';
-
-  try {
-    await apiCall('/users/me', {
-      method: 'PUT',
-      body:   JSON.stringify({ name: name, phone: phone, address: address })
-    });
-
-    // Update localStorage
-    var user = null;
-    try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
-    if (user) {
-      user.name    = name;
-      user.phone   = phone;
-      user.address = address;
-      localStorage.setItem('user', JSON.stringify(user));
+    // Store product data safely on the button element
+    var addBtn = card.querySelector('.add-btn');
+    if (addBtn) {
+      addBtn._product = {
+        id:            p.id,
+        name:          p.name,
+        price:         p.price,
+        sale_price:    p.sale_price || null,
+        image:         p.image || '',
+        business_id:   p.business_id,
+        business_name: p.business_name || '',
+        unit:          p.unit || 'pc'
+      };
+      addBtn.addEventListener('click', function() {
+        addToCart(this._product, 1);
+      });
     }
 
-    document.getElementById('profile-name').textContent = name;
-    document.getElementById('avatar-circle').textContent = name.charAt(0).toUpperCase();
-    showToast('Profile updated successfully!', 'success');
-  } catch(err) {
-    showToast(err.message, 'error');
-  }
-
-  btn.disabled  = false;
-  btn.innerHTML = 'Save Changes';
-});
-
-// Change password
-document.getElementById('password-form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  var btn     = document.getElementById('pw-btn');
-  var current = document.getElementById('current-password').value;
-  var newPw   = document.getElementById('new-password').value;
-  var confirm = document.getElementById('confirm-new-password').value;
-
-  if (!current || !newPw) { showToast('Please fill in all password fields', 'error'); return; }
-  if (newPw !== confirm)  { showToast('New passwords do not match', 'error'); return; }
-  if (newPw.length < 6)   { showToast('Password must be at least 6 characters', 'error'); return; }
-
-  btn.disabled  = true;
-  btn.innerHTML = '<span class="spinner"></span> Updating…';
-
-  try {
-    await apiCall('/users/me/password', {
-      method: 'PUT',
-      body:   JSON.stringify({ currentPassword: current, newPassword: newPw })
-    });
-    showToast('Password updated successfully!', 'success');
-    document.getElementById('password-form').reset();
-  } catch(err) {
-    showToast(err.message, 'error');
-  }
-
-  btn.disabled  = false;
-  btn.innerHTML = 'Update Password';
-});
-
-// Delete account
-function confirmDeleteAccount() {
-  document.getElementById('delete-modal').style.display = 'flex';
+    grid.appendChild(card);
+  });
 }
-function closeDeleteModal() {
-  document.getElementById('delete-modal').style.display = 'none';
-  document.getElementById('delete-confirm-input').value = '';
-}
-
-async function deleteAccount() {
-  var input = document.getElementById('delete-confirm-input').value.trim();
-  if (input !== 'DELETE') {
-    showToast('Please type DELETE to confirm', 'error'); return;
-  }
-  try {
-    var user = null;
-    try { user = JSON.parse(localStorage.getItem('user')); } catch(e) {}
-    await apiCall('/users/me', { method: 'DELETE' });
-    localStorage.clear();
-    showToast('Account deleted. Goodbye!', 'success');
-    setTimeout(function(){ window.location.href = 'index.html'; }, 1500);
-  } catch(err) {
-    // Even if API fails, clear local data
-    localStorage.clear();
-    showToast('Account deleted. Goodbye!', 'success');
-    setTimeout(function(){ window.location.href = 'index.html'; }, 1500);
-  }
-}
-
 </script>
 </body>
 </html>
