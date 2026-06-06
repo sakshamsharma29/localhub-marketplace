@@ -57,23 +57,44 @@
 // module.exports = db;
 
 
+// const mysql = require('mysql2');
+// require('dotenv').config();
+// console.log(
+//   process.env.MYSQLHOST,
+//   process.env.MYSQLUSER,
+//   process.env.MYSQLPASSWORD,
+//   process.env.MYSQLDATABASE
+// );
+// const pool = mysql.createPool({
+//   host: process.env.MYSQLHOST,
+//   port: Number(process.env.MYSQL_PORT || 3306),
+//   user: process.env.MYSQLUSER,
+//   password: process.env.MYSQLPASSWORD,
+//   database: process.env.MYSQLDATABASE,
+//   waitForConnections: true,
+//   connectionLimit: 10,
+//   queueLimit: 0,
+// });
+
+// module.exports = pool.promise();
+
+
+
 const mysql = require('mysql2');
 require('dotenv').config();
-console.log(
-  process.env.MYSQLHOST,
-  process.env.MYSQLUSER,
-  process.env.MYSQLPASSWORD,
-  process.env.MYSQLDATABASE
-);
+
 const pool = mysql.createPool({
   host: process.env.MYSQLHOST,
-  port: Number(process.env.MYSQL_PORT || 3306),
+  port: Number(process.env.MYSQLPORT),
   user: process.env.MYSQLUSER,
   password: process.env.MYSQLPASSWORD,
   database: process.env.MYSQLDATABASE,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 module.exports = pool.promise();
